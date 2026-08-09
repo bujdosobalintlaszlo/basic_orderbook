@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/home/bujdosobalint/basic_orderbook
+CXX_INCLUDES = -I/home/bujdosobalint/basic_orderbook/include
 
 CXX_FLAGS = -std=gnu++20
 

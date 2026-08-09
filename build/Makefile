@@ -65,6 +65,16 @@ CMAKE_BINARY_DIR = /home/bujdosobalint/basic_orderbook/build
 #=============================================================================
 # Targets provided globally by CMake.
 
+# Special rule for the target test
+test:
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Running tests..."
+	/usr/bin/ctest --force-new-ctest-process $(ARGS)
+.PHONY : test
+
+# Special rule for the target test
+test/fast: test
+.PHONY : test/fast
+
 # Special rule for the target edit_cache
 edit_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "No interactive CMake dialog available..."
@@ -84,6 +94,51 @@ rebuild_cache:
 # Special rule for the target rebuild_cache
 rebuild_cache/fast: rebuild_cache
 .PHONY : rebuild_cache/fast
+
+# Special rule for the target list_install_components
+list_install_components:
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Available install components are: \"gmock\" \"gtest\""
+.PHONY : list_install_components
+
+# Special rule for the target list_install_components
+list_install_components/fast: list_install_components
+.PHONY : list_install_components/fast
+
+# Special rule for the target install
+install: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Install the project..."
+	/usr/bin/cmake -P cmake_install.cmake
+.PHONY : install
+
+# Special rule for the target install
+install/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Install the project..."
+	/usr/bin/cmake -P cmake_install.cmake
+.PHONY : install/fast
+
+# Special rule for the target install/local
+install/local: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Installing only the local directory..."
+	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+.PHONY : install/local
+
+# Special rule for the target install/local
+install/local/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Installing only the local directory..."
+	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+.PHONY : install/local/fast
+
+# Special rule for the target install/strip
+install/strip: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Installing the project stripped..."
+	/usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+.PHONY : install/strip
+
+# Special rule for the target install/strip
+install/strip/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Installing the project stripped..."
+	/usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+.PHONY : install/strip/fast
 
 # The main all target
 all: cmake_check_build_system
@@ -129,77 +184,172 @@ OrderBook/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/OrderBook.dir/build.make CMakeFiles/OrderBook.dir/build
 .PHONY : OrderBook/fast
 
-main.o: main.cpp.o
-.PHONY : main.o
+#=============================================================================
+# Target rules for targets named unit_tests
+
+# Build rule for target.
+unit_tests: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 unit_tests
+.PHONY : unit_tests
+
+# fast build rule for target.
+unit_tests/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/unit_tests.dir/build.make CMakeFiles/unit_tests.dir/build
+.PHONY : unit_tests/fast
+
+#=============================================================================
+# Target rules for targets named gmock
+
+# Build rule for target.
+gmock: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 gmock
+.PHONY : gmock
+
+# fast build rule for target.
+gmock/fast:
+	$(MAKE) $(MAKESILENT) -f third_party/googletest/googlemock/CMakeFiles/gmock.dir/build.make third_party/googletest/googlemock/CMakeFiles/gmock.dir/build
+.PHONY : gmock/fast
+
+#=============================================================================
+# Target rules for targets named gmock_main
+
+# Build rule for target.
+gmock_main: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 gmock_main
+.PHONY : gmock_main
+
+# fast build rule for target.
+gmock_main/fast:
+	$(MAKE) $(MAKESILENT) -f third_party/googletest/googlemock/CMakeFiles/gmock_main.dir/build.make third_party/googletest/googlemock/CMakeFiles/gmock_main.dir/build
+.PHONY : gmock_main/fast
+
+#=============================================================================
+# Target rules for targets named gtest
+
+# Build rule for target.
+gtest: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 gtest
+.PHONY : gtest
+
+# fast build rule for target.
+gtest/fast:
+	$(MAKE) $(MAKESILENT) -f third_party/googletest/googletest/CMakeFiles/gtest.dir/build.make third_party/googletest/googletest/CMakeFiles/gtest.dir/build
+.PHONY : gtest/fast
+
+#=============================================================================
+# Target rules for targets named gtest_main
+
+# Build rule for target.
+gtest_main: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 gtest_main
+.PHONY : gtest_main
+
+# fast build rule for target.
+gtest_main/fast:
+	$(MAKE) $(MAKESILENT) -f third_party/googletest/googletest/CMakeFiles/gtest_main.dir/build.make third_party/googletest/googletest/CMakeFiles/gtest_main.dir/build
+.PHONY : gtest_main/fast
+
+src/main.o: src/main.cpp.o
+.PHONY : src/main.o
 
 # target to build an object file
-main.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/OrderBook.dir/build.make CMakeFiles/OrderBook.dir/main.cpp.o
-.PHONY : main.cpp.o
+src/main.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/OrderBook.dir/build.make CMakeFiles/OrderBook.dir/src/main.cpp.o
+.PHONY : src/main.cpp.o
 
-main.i: main.cpp.i
-.PHONY : main.i
+src/main.i: src/main.cpp.i
+.PHONY : src/main.i
 
 # target to preprocess a source file
-main.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/OrderBook.dir/build.make CMakeFiles/OrderBook.dir/main.cpp.i
-.PHONY : main.cpp.i
+src/main.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/OrderBook.dir/build.make CMakeFiles/OrderBook.dir/src/main.cpp.i
+.PHONY : src/main.cpp.i
 
-main.s: main.cpp.s
-.PHONY : main.s
+src/main.s: src/main.cpp.s
+.PHONY : src/main.s
 
 # target to generate assembly for a file
-main.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/OrderBook.dir/build.make CMakeFiles/OrderBook.dir/main.cpp.s
-.PHONY : main.cpp.s
+src/main.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/OrderBook.dir/build.make CMakeFiles/OrderBook.dir/src/main.cpp.s
+.PHONY : src/main.cpp.s
 
-order.o: order.cpp.o
-.PHONY : order.o
+src/order.o: src/order.cpp.o
+.PHONY : src/order.o
 
 # target to build an object file
-order.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/OrderBook.dir/build.make CMakeFiles/OrderBook.dir/order.cpp.o
-.PHONY : order.cpp.o
+src/order.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/OrderBook.dir/build.make CMakeFiles/OrderBook.dir/src/order.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/unit_tests.dir/build.make CMakeFiles/unit_tests.dir/src/order.cpp.o
+.PHONY : src/order.cpp.o
 
-order.i: order.cpp.i
-.PHONY : order.i
+src/order.i: src/order.cpp.i
+.PHONY : src/order.i
 
 # target to preprocess a source file
-order.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/OrderBook.dir/build.make CMakeFiles/OrderBook.dir/order.cpp.i
-.PHONY : order.cpp.i
+src/order.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/OrderBook.dir/build.make CMakeFiles/OrderBook.dir/src/order.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/unit_tests.dir/build.make CMakeFiles/unit_tests.dir/src/order.cpp.i
+.PHONY : src/order.cpp.i
 
-order.s: order.cpp.s
-.PHONY : order.s
+src/order.s: src/order.cpp.s
+.PHONY : src/order.s
 
 # target to generate assembly for a file
-order.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/OrderBook.dir/build.make CMakeFiles/OrderBook.dir/order.cpp.s
-.PHONY : order.cpp.s
+src/order.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/OrderBook.dir/build.make CMakeFiles/OrderBook.dir/src/order.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/unit_tests.dir/build.make CMakeFiles/unit_tests.dir/src/order.cpp.s
+.PHONY : src/order.cpp.s
 
-orderbook.o: orderbook.cpp.o
-.PHONY : orderbook.o
+src/orderbook.o: src/orderbook.cpp.o
+.PHONY : src/orderbook.o
 
 # target to build an object file
-orderbook.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/OrderBook.dir/build.make CMakeFiles/OrderBook.dir/orderbook.cpp.o
-.PHONY : orderbook.cpp.o
+src/orderbook.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/OrderBook.dir/build.make CMakeFiles/OrderBook.dir/src/orderbook.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/unit_tests.dir/build.make CMakeFiles/unit_tests.dir/src/orderbook.cpp.o
+.PHONY : src/orderbook.cpp.o
 
-orderbook.i: orderbook.cpp.i
-.PHONY : orderbook.i
+src/orderbook.i: src/orderbook.cpp.i
+.PHONY : src/orderbook.i
 
 # target to preprocess a source file
-orderbook.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/OrderBook.dir/build.make CMakeFiles/OrderBook.dir/orderbook.cpp.i
-.PHONY : orderbook.cpp.i
+src/orderbook.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/OrderBook.dir/build.make CMakeFiles/OrderBook.dir/src/orderbook.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/unit_tests.dir/build.make CMakeFiles/unit_tests.dir/src/orderbook.cpp.i
+.PHONY : src/orderbook.cpp.i
 
-orderbook.s: orderbook.cpp.s
-.PHONY : orderbook.s
+src/orderbook.s: src/orderbook.cpp.s
+.PHONY : src/orderbook.s
 
 # target to generate assembly for a file
-orderbook.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/OrderBook.dir/build.make CMakeFiles/OrderBook.dir/orderbook.cpp.s
-.PHONY : orderbook.cpp.s
+src/orderbook.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/OrderBook.dir/build.make CMakeFiles/OrderBook.dir/src/orderbook.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/unit_tests.dir/build.make CMakeFiles/unit_tests.dir/src/orderbook.cpp.s
+.PHONY : src/orderbook.cpp.s
+
+test/orderbook_test.o: test/orderbook_test.cpp.o
+.PHONY : test/orderbook_test.o
+
+# target to build an object file
+test/orderbook_test.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/unit_tests.dir/build.make CMakeFiles/unit_tests.dir/test/orderbook_test.cpp.o
+.PHONY : test/orderbook_test.cpp.o
+
+test/orderbook_test.i: test/orderbook_test.cpp.i
+.PHONY : test/orderbook_test.i
+
+# target to preprocess a source file
+test/orderbook_test.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/unit_tests.dir/build.make CMakeFiles/unit_tests.dir/test/orderbook_test.cpp.i
+.PHONY : test/orderbook_test.cpp.i
+
+test/orderbook_test.s: test/orderbook_test.cpp.s
+.PHONY : test/orderbook_test.s
+
+# target to generate assembly for a file
+test/orderbook_test.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/unit_tests.dir/build.make CMakeFiles/unit_tests.dir/test/orderbook_test.cpp.s
+.PHONY : test/orderbook_test.cpp.s
 
 # Help Target
 help:
@@ -208,17 +358,30 @@ help:
 	@echo "... clean"
 	@echo "... depend"
 	@echo "... edit_cache"
+	@echo "... install"
+	@echo "... install/local"
+	@echo "... install/strip"
+	@echo "... list_install_components"
 	@echo "... rebuild_cache"
+	@echo "... test"
 	@echo "... OrderBook"
-	@echo "... main.o"
-	@echo "... main.i"
-	@echo "... main.s"
-	@echo "... order.o"
-	@echo "... order.i"
-	@echo "... order.s"
-	@echo "... orderbook.o"
-	@echo "... orderbook.i"
-	@echo "... orderbook.s"
+	@echo "... gmock"
+	@echo "... gmock_main"
+	@echo "... gtest"
+	@echo "... gtest_main"
+	@echo "... unit_tests"
+	@echo "... src/main.o"
+	@echo "... src/main.i"
+	@echo "... src/main.s"
+	@echo "... src/order.o"
+	@echo "... src/order.i"
+	@echo "... src/order.s"
+	@echo "... src/orderbook.o"
+	@echo "... src/orderbook.i"
+	@echo "... src/orderbook.s"
+	@echo "... test/orderbook_test.o"
+	@echo "... test/orderbook_test.i"
+	@echo "... test/orderbook_test.s"
 .PHONY : help
 
 
