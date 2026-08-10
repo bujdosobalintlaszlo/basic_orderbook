@@ -8,9 +8,14 @@
 #include "orderbook/orderLoaction.h"
 class DebugOb{
 private:
+	 struct InsertInfo{
+		  uint64_t price_;
+		  Side side_;
+		  Orders::iterator it_;
+	 };
 	 std::map<uint64_t,Orders,std::greater<int64_t>> bids_;
 	 std::map<uint64_t,Orders> asks_;
-	 std::unordered_map<uint64_t,OrderLocation> orders_;
+	 std::unordered_map<uint64_t,InsertInfo> orders_;
 	 
 	 ///<summary>
 	 ///params: the orders pointer, and bids_ or asks_ as a refference depending on BUY or SELL side order.
@@ -69,15 +74,38 @@ private:
 		  const uint64_t price = order->getPrice();
 		  auto [it, inserted] = book.try_emplace(price);
 		  it->second.push_back(std::move(order));
+		  //auto order_it = std::prev(it->second.end());
+		  InsertInfo i;
+		  i.it_= std::prev(it->second.end());
+		  i.price_=price;
+		  i.side_=order->getSide();
+		  orders_.insert({price,i}); 
 		  return true;
 	 }
 	 
-	 template<typename Comparator>
-	 void cancelOrder(uint64_t id){
-		  
+	 bool cancelOrder(uint64_t id,Side side){
+		  auto order_it = orders_.find(id);
+		  if(order_it != orders_.end()){
+				if(order_it->second.side_ == Side::BUY){
+					auto level_it = bids_.find(order_it->second.price_);
+					if(level_it != bids_.end()){
+						  level_it->second.erase(order_it->second.it_);
+						  orders_.erase(order_it);
+						  return true;
+					}
+				}else{
+					 auto level_it = asks_.find(order_it->second.price_);
+					 if(level_it != asks_.end()){
+						  level_it->second.erase(order_it->second.it_);
+						  orders_.erase(order_it);
+						  return true;
+					 }
+				}
+		  } 
+		  return false;
 	 }
 	 template<typename Comparator>
-	 Trade FOK(OrderPtr &order,std::map<Price,Orders,Comparator> &book){
+	 Trades FOK(OrderPtr &order,std::map<Price,Orders,Comparator> &book){
 	    Trades trades{};
 		 auto it = book.begin();
 		 while(it != book.end()){

@@ -145,8 +145,8 @@ bool OrderBook::MatchOrderOnBuy(std::unique_ptr<Order> &order){
 				uint64_t fill_prc = ask_order->getPrice();
 
 				// Deduct filled quantity
-				ask_order->setQuantity(fillable_quant);
-				order->setQuantity(fillable_quant);
+				ask_order->fill(fillable_quant);
+				order->fill(fillable_quant);
 
 				// Record Trade
 				TradeInfo bid_inf(order->getId(), fill_prc, Side::BUY, order->getRemainingQuantity(), order->getInitialQuantity());
