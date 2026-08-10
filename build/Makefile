@@ -327,6 +327,30 @@ src/orderbook.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/unit_tests.dir/build.make CMakeFiles/unit_tests.dir/src/orderbook.cpp.s
 .PHONY : src/orderbook.cpp.s
 
+src/ordertype.o: src/ordertype.cpp.o
+.PHONY : src/ordertype.o
+
+# target to build an object file
+src/ordertype.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/OrderBook.dir/build.make CMakeFiles/OrderBook.dir/src/ordertype.cpp.o
+.PHONY : src/ordertype.cpp.o
+
+src/ordertype.i: src/ordertype.cpp.i
+.PHONY : src/ordertype.i
+
+# target to preprocess a source file
+src/ordertype.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/OrderBook.dir/build.make CMakeFiles/OrderBook.dir/src/ordertype.cpp.i
+.PHONY : src/ordertype.cpp.i
+
+src/ordertype.s: src/ordertype.cpp.s
+.PHONY : src/ordertype.s
+
+# target to generate assembly for a file
+src/ordertype.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/OrderBook.dir/build.make CMakeFiles/OrderBook.dir/src/ordertype.cpp.s
+.PHONY : src/ordertype.cpp.s
+
 test/orderbook_test.o: test/orderbook_test.cpp.o
 .PHONY : test/orderbook_test.o
 
@@ -379,6 +403,9 @@ help:
 	@echo "... src/orderbook.o"
 	@echo "... src/orderbook.i"
 	@echo "... src/orderbook.s"
+	@echo "... src/ordertype.o"
+	@echo "... src/ordertype.i"
+	@echo "... src/ordertype.s"
 	@echo "... test/orderbook_test.o"
 	@echo "... test/orderbook_test.i"
 	@echo "... test/orderbook_test.s"

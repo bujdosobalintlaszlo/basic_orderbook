@@ -1,5 +1,11 @@
 #pragma once
-enum class OrderType {GoodTillCancel,FillAndKill,FillOrKill,GoodForDay,Market,PostOnly,IceBerg};
+#include<string>
+#include<iostream>
+//PS.:GOTTA ADD LIMIT
+enum class OrderType {GoodTillCancel,FillAndKill,FillOrKill,GoodForDay,Market,Limit,PostOnly,IceBerg};
+
+std::string to_string(OrderType op);
+std::ostream& operator<<(std::ostream& os,OrderType op);
 /*
  * Notes for ordertypes:
  * ___NOT LISTED IN THE BOOK___

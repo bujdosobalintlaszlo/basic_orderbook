@@ -5,13 +5,13 @@
 #include<memory>
 class Order{
 public:
-	 Order(uint64_t id,OrderType orderType,Side side,double price,uint64_t quantity);
+	 Order(uint64_t id,OrderType orderType,Side side,uint64_t price,uint64_t quantity);
 	 
 	 //getters
 	 uint64_t getId() const;
 	 OrderType getOrderType()const;
 	 Side getSide()const;
-	 double getPrice()const;
+	 uint64_t getPrice()const;
 	 uint64_t getInitialQuantity()const;
 	 uint64_t getRemainingQuantity()const;
 	 

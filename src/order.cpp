@@ -2,12 +2,12 @@
 #include <iostream>
 #include <stdexcept>
 #include <string>
-
-Order::Order(uint64_t id, OrderType orderType, Side side, double price, uint64_t quantity) 
+//IMPLEMENT LIMIT
+Order::Order(uint64_t id, OrderType orderType, Side side, uint64_t price, uint64_t quantity) 
     : id_(id), orderType_(orderType), side_(side), price_(price), 
       initial_quantity_(quantity), remaining_quantity_(quantity) {
       
-    if (quantity == 0) {
+    if (quantity <= 0) {
         throw std::invalid_argument("Order quantity cannot be zero! Order ID: " + std::to_string(id));
     }
     if (price <= 0.0) {
@@ -20,7 +20,7 @@ Order::Order(uint64_t id, OrderType orderType, Side side, double price, uint64_t
 uint64_t Order::getId() const { return id_; }
 OrderType Order::getOrderType() const { return orderType_; }
 Side Order::getSide() const { return side_; }
-double Order::getPrice() const { return price_; }
+uint64_t Order::getPrice() const { return price_; }
 uint64_t Order::getInitialQuantity() const { return initial_quantity_; }
 uint64_t Order::getRemainingQuantity() const { return remaining_quantity_; }
 
@@ -44,7 +44,7 @@ double Order::getFufillmentOfOrder() const {
 bool Order::isFilled() const { 
     return remaining_quantity_ == 0; 
 }
-
+//PS.: SUPPORING 4 decimals
 void Order::printOrder() const {
     std::cout << "Order ID: " << getId() 
               << ", Type: " << static_cast<int>(getOrderType()) 
@@ -54,3 +54,4 @@ void Order::printOrder() const {
               << ", Remaining Qty: " << getRemainingQuantity() 
               << ", Fulfillment: " << getFufillmentOfOrder() << "%\n";
 }
+

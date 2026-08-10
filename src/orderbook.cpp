@@ -153,6 +153,7 @@ Trades OrderBook::FOK(OrderPtr &order,std::map<Price,Orders,Comparator> &book){
 bool OrderBook::placeOrder(OrderPtr order){
 	 switch(order->getOrderType()){
 		  case OrderType::GoodForDay:
+				//implementation postponed
 				break;		
 		  case OrderType::GoodTillCancel:
 				if(order->getSide() == Side::BUY){
@@ -177,9 +178,11 @@ bool OrderBook::placeOrder(OrderPtr order){
 				break;
 		  
 		  case OrderType::IceBerg:
+				//implementation postponed
 				break;
 		  //not in book
 		  case OrderType::Market:
+				//ps.: INCORRECT IMPLEMENTATION - PRICE SHOULDNT MATTER IT EXECUTES AT WHATEVER PRICE
 				if(order->getSide() == Side::BUY){
 					 matchMarketOrder(order,asks_);
 				}
@@ -189,8 +192,21 @@ bool OrderBook::placeOrder(OrderPtr order){
 				std::cout << "A MARKET Order has been filled with Order ID: " << order->getId() << ", with " << order->getRemainingQuantity() << " remaining unfilled." << '\n';
 				break;
 		  case OrderType::FillAndKill:
+				if(order->getSide() == Side::BUY){
+					 matchMarketOrder(order,asks_);
+				}
+				else{
+					 matchMarketOrder(order,bids_);
+				}
 				break;
+
 		  case OrderType::FillOrKill:
+				if(order->getSide() == Side::BUY){
+					 FOK(order,asks_);
+				}
+				else{
+					 FOK(order,bids_);
+				}
 				break;
 	 }
 	 return true;
