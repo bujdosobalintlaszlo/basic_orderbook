@@ -1,41 +1,14 @@
 #include "orderbook/order.h"
 #include "orderbook/orderbook.h"
 #include "orderbook/side.h"
-#include<string> 
 #include<memory>
 #include "orderbook/ordertype.h"
 #include "orderbook/trade_info.h"
+
 OrderBook::OrderBook() = default;
-void OrderBook::placeOrder(std::unique_ptr<Order> order) {
-    if (!order) return;
 
-    switch (order->getSide()) {
-        case Side::BUY: {
-            uint64_t price = order->getPrice();
-            auto [it, inserted] = bids_.try_emplace(price);
-            it->second.push_back(std::move(order));
-            break;
-        }
-
-        case Side::SELL: {
-            uint64_t price = order->getPrice();
-            auto [it, inserted] = asks_.try_emplace(price);
-            it->second.push_back(std::move(order));
-            break;
-        }
-
-        default:
-            throw std::invalid_argument("Faulty order with invalid Side! Order ID: " + std::to_string(order->getId()));
-    }
-}
-const std::map<int64_t,Orders,std::greater<int64_t>>& OrderBook::getBids() const noexcept{return bids_;}
-const std::map<int64_t,Orders>& OrderBook::getAsks() const noexcept{return asks_;}
-
-void OrderBook::displayTrades() const {
-	 std::cout << "___ Trades ___" << '\n';
-	 for(auto it = trades_.begin();it!=trades_.end();++it){
-	 }
-}
+const std::map<uint64_t,Orders,std::greater<uint64_t>>& OrderBook::getBids() const noexcept{return bids_;}
+const std::map<uint64_t,Orders>& OrderBook::getAsks() const noexcept{return asks_;}
 
 void OrderBook::displayBids() const {
 	 std::cout << "___ BIDS DEBUG ___" << '\n';
@@ -55,52 +28,151 @@ void OrderBook::displayAsks() const {
     }
 }
 
-void OrderBook::matchOrder(std::unique_ptr<Order> order){
+///<summary>
+///params: the orders pointer, and bids_ or asks_ as a refference depending on BUY or SELL side order.
+///return: A vector of trades which went trough. Could be empty, which means it couldn't macth.
+///</summary>
+template <typename Compare>
+Trades OrderBook::matchMarketOrder(OrderPtr &order, std::map<Price,Orders, Compare> &book) {
+	 Trades trades{};
+	 auto it = book.begin();
+	 while (it != book.end() && order->getRemainingQuantity() > 0) {
+		  auto &orders = it->second;
+		  auto orders_it = orders.begin();
+		  while (orders_it != orders.end() && order->getRemainingQuantity() > 0) {
+				auto &current_order = *orders_it;
+				uint64_t fill_qty{0};
+				if(order->getSide() == Side::BUY && order->getPrice() >= current_order->getPrice()){
+					 fill_qty = std::min(order->getRemainingQuantity(), current_order->getRemainingQuantity());
+				}
+				else if(order->getSide() == Side::SELL && order->getPrice() <= current_order->getPrice()){
+					 fill_qty = std::max(order->getRemainingQuantity(), current_order->getRemainingQuantity());
+				}
+				if(fill_qty > 0){
+					 uint64_t fill_price = current_order->getPrice();
+					 order->fill(fill_qty);
+					 current_order->fill(fill_qty);
+					 trades.push_back(createTradeData(order, current_order));
+				}
+				//if the current order from the book got fully filled, then we remove it from the list, storing trades at the given price level
+				if (current_order->getRemainingQuantity() == 0) {
+					 orders_it = orders.erase(orders_it);
+				} else {
+					 ++orders_it;
+				}
+		  }
+		  //checking if the price level got emptyed. If so we delete it from the book.
+		  if (orders.empty()) {
+				it = book.erase(it);
+		  } else {
+				++it;
+		  }
+	 }
+	 return trades;
+}
+///<summary> 
+///Creates a Trade obj which consists of 2 TradeInfo objects. Those can be created by the orders traits;
+///<summary>
+Trade OrderBook::createTradeData(const OrderPtr &bidOrder,const OrderPtr &askOrder){
+	  TradeInfo bidInf(bidOrder->getId(),bidOrder->getPrice(),bidOrder->getSide(),bidOrder->getRemainingQuantity(),bidOrder->getInitialQuantity());
+	  TradeInfo askInf(askOrder->getId(),askOrder->getPrice(),askOrder->getSide(),askOrder->getRemainingQuantity(),askOrder->getInitialQuantity());
+	  Trade trade(bidInf,askInf);
+	  return trade;
+}
+
+template<typename Comparator>
+bool OrderBook::insertIntoBook(OrderPtr &order,std::map<Price,Orders,Comparator> &book){
+	 if(!order) return false;
+	 const uint64_t price = order->getPrice();
+	 const Side side = order->getSide();
+	 const uint64_t id = order->getId();
+	 auto [it, inserted] = book.try_emplace(price);
+	 it->second.push_back(std::move(order));
+	 auto order_it = std::prev(it->second.end());
+	 OrderBook::InsertInfo i(price,side,order_it);
+	 orders_.insert({id,i}); 
+	 return true;
+}
+
+bool OrderBook::cancelOrder(uint64_t id,Side side){
+	 auto order_it = orders_.find(id);
+	 if(order_it != orders_.end()){
+		  if(order_it->second.side_ == Side::BUY){
+			  auto level_it = bids_.find(order_it->second.price_);
+			  if(level_it != bids_.end()){
+					 level_it->second.erase(order_it->second.it_);
+					 orders_.erase(order_it);
+					 return true;
+			  }
+		  }else{
+				auto level_it = asks_.find(order_it->second.price_);
+				if(level_it != asks_.end()){
+					 level_it->second.erase(order_it->second.it_);
+					 orders_.erase(order_it);
+					 return true;
+				}
+		  }
+	 } 
+	 return false;
+}
+template<typename Comparator>
+Trades OrderBook::FOK(OrderPtr &order,std::map<Price,Orders,Comparator> &book){
+	Trades trades{};
+	auto it = book.begin();
+	while(it != book.end()){
+		  auto &orders = it->second;
+		  auto orders_it = orders.begin();
+		  while(orders_it != orders.end()){
+				auto &current_order = *orders_it;
+				if(current_order->getInitialQuantity() == order->getInitialQuantity()){
+					 uint64_t fill_qty{0};
+					 if(order->getSide() == Side::BUY && order->getPrice() >= current_order->getPrice()){
+						  fill_qty = std::min(order->getRemainingQuantity(), current_order->getRemainingQuantity());
+					 }
+					 else if(order->getSide() == Side::SELL && order->getPrice() <= current_order->getPrice()){
+						  fill_qty = std::max(order->getRemainingQuantity(), current_order->getRemainingQuantity());
+					 }
+					 if(fill_qty > 0){
+						  uint64_t fill_price = current_order->getPrice();
+						  order->fill(fill_qty);
+						  current_order->fill(fill_qty);
+						  trades.push_back(createTradeData(order, current_order));
+					 }
+					 //if the current order from the book got fully filled, then we remove it from the list, storing trades at the given price level
+					 if (current_order->getRemainingQuantity() == 0) {
+						  orders_it = orders.erase(orders_it);
+					 } else {
+						  ++orders_it;
+					 } 
+				}
+		  }
+	}
+	return trades;
+}
+
+bool OrderBook::placeOrder(OrderPtr order){
 	 switch(order->getOrderType()){
-		  //into book
 		  case OrderType::GoodForDay:
 				break;		
-		 
-		  //can be filled immidatelly, inserted if couldnt fill
 		  case OrderType::GoodTillCancel:
 				if(order->getSide() == Side::BUY){
-					 if(MatchOrderOnBuy(order)){
-						  if(order->getRemainingQuantity() > 0){
-									 uint64_t price = order->getPrice();
-									 auto [it, inserted] = bids_.try_emplace(price);
-									 it->second.push_back(std::move(order));
-						  }
-					 }else{
-						  uint64_t price = order->getPrice();
-						  auto [it, inserted] = bids_.try_emplace(price);
-						  it->second.push_back(std::move(order));
-
-					 }
-			  }
-				else{
-					 if(MatchOrderOnSell(order)){
-						 if(order->getRemainingQuantity()> 0){
-								uint64_t price = order->getPrice();
-								auto [it, inserted] = asks_.try_emplace(price);
-								it->second.push_back(std::move(order));
-						 } 
-					 }else{
-						  uint64_t price = order->getPrice();
-						  auto [it, inserted] = asks_.try_emplace(price);
-						  it->second.push_back(std::move(order));
-					 }
+					 matchMarketOrder(order,asks_);
+					 return insertIntoBook(order,bids_);
+				}else{
+					 matchMarketOrder(order,bids_);
+					 return insertIntoBook(order,asks_);
 				}
 				break;
 		  //done 
 		  case OrderType::PostOnly:
 				if(order->getSide() == Side::BUY){
-					 uint64_t price = order->getPrice();
-					 auto [it, inserted] = bids_.try_emplace(price);
-					 it->second.push_back(std::move(order));
+					 std::cout << "buyside P only" << '\n';
+					 std::cout << "END OF POST ONLY BUY" << '\n';
+					 return insertIntoBook(order,bids_);
 				}else{
-					 uint64_t price = order->getPrice();
-					 auto [it, inserted] = asks_.try_emplace(price);
-					 it->second.push_back(std::move(order));
+					 std::cout << "sellside P only" << '\n';
+					 std::cout << "END OF POST ONLY SELL" << '\n';
+					 return insertIntoBook(order,asks_);
 				}
 				break;
 		  
@@ -108,215 +180,22 @@ void OrderBook::matchOrder(std::unique_ptr<Order> order){
 				break;
 		  //not in book
 		  case OrderType::Market:
-				if (order->getSide() == Side::BUY) {
-					 MatchOrderOnBuy(order);
-            } else {
-					 MatchOrderOnSell(order);
-            }
+				if(order->getSide() == Side::BUY){
+					 matchMarketOrder(order,asks_);
+				}
+				else{
+					 matchMarketOrder(order,bids_);
+				}
 				std::cout << "A MARKET Order has been filled with Order ID: " << order->getId() << ", with " << order->getRemainingQuantity() << " remaining unfilled." << '\n';
 				break;
 		  case OrderType::FillAndKill:
 				break;
 		  case OrderType::FillOrKill:
-				bool passed = false;
-				if(order->getSide() == Side::BUY){
-					passed = FOK(bids_,order); 
-				}else{
-					passed = FOK(asks_,order); 
-				}
-				if(passed){
-					 std::cout << "SIKERES FOK";
-				}else{
-					 std::cout << "SIKERTELEN FOK";
-				}
 				break;
 	 }
+	 return true;
 }
-bool OrderBook::MatchOrderOnBuy(std::unique_ptr<Order> &order){
-	 auto it = asks_.begin();
-	 while (it != asks_.end() && order->getRemainingQuantity() > 0) {
-		  auto& ask_list = it->second;
-		  auto ask_it = ask_list.begin();
 
-		  while (ask_it != ask_list.end() && order->getRemainingQuantity() > 0) {
-				auto& ask_order = *ask_it;
-				// Calculate fill quantity based on REMAINING amounts
-				uint64_t fillable_quant = std::min(order->getRemainingQuantity(), ask_order->getRemainingQuantity());
-				uint64_t fill_prc = ask_order->getPrice();
-
-				// Deduct filled quantity
-				ask_order->fill(fillable_quant);
-				order->fill(fillable_quant);
-
-				// Record Trade
-				TradeInfo bid_inf(order->getId(), fill_prc, Side::BUY, order->getRemainingQuantity(), order->getInitialQuantity());
-				TradeInfo ask_inf(ask_order->getId(), fill_prc, Side::SELL, ask_order->getRemainingQuantity(), ask_order->getInitialQuantity());
-				trades_.emplace_back(bid_inf, ask_inf);
-
-				// If the passive ask order is fully filled, erase it and get the next iterator
-				if (ask_order->getRemainingQuantity() == 0) {
-					 ask_it = ask_list.erase(ask_it);
-				} else {
-					 ++ask_it;
-				}
-		  }
-		  // If the price level is completely empty, safely erase the price level
-		  if (ask_list.empty()) {
-				it = asks_.erase(it);
-		  } else {
-				++it;
-		  }
-	 }
-	 return order->getRemainingQuantity() != order->getInitialQuantity();
-}
-bool OrderBook::canMatch(Side side,Price price) const {
-	 if(side == Side::BUY){
-		  if(asks_.empty()) return false;
-		  const auto& [bestAsk, _] = *asks_.begin();
-		  return price >= bestAsk;
-
-	 }else{
-		  if(bids_.empty()) return false;
-		  const auto& [bestBid,_] = *bids_.begin();
-		  return price <= bestBid;
-	 }
-}
-bool OrderBook::cancelOrder(uint64_t id) {
-    auto orderIt = orders_.find(id);
-    if (orderIt == orders_.end()) {
-        return false;
-    }
-	  
-    
-    return true;
-}
-bool OrderBook::MatchOrderOnSell(std::unique_ptr<Order> &order){
-	 auto it =bids_.begin();
-                while (it != bids_.end() && order->getRemainingQuantity() > 0) {
-                    auto& bid_list = it->second;
-                    auto bid_it = bid_list.begin();
-
-                    while (bid_it != bid_list.end() && order->getRemainingQuantity() > 0) {
-                        auto& bid_order = *bid_it;
-                        // Calculate fill quantity based on REMAINING amounts
-						  uint64_t fillable_quant = std::max(order->getRemainingQuantity(), bid_order->getRemainingQuantity());
-						  uint64_t fill_prc = bid_order->getPrice();
-
-						  // Deduct filled quantity
-						  bid_order->setQuantity(fillable_quant);
-						  order->setQuantity(fillable_quant);
-						  // Record Trade
-						  TradeInfo ask_inf(order->getId(), fill_prc, Side::SELL, order->getRemainingQuantity(), order->getInitialQuantity());
-						  TradeInfo bid_inf(bid_order->getId(), fill_prc, Side::BUY, bid_order->getRemainingQuantity(), bid_order->getInitialQuantity());
-						  trades_.emplace_back(bid_inf,ask_inf);
-
-						  // If the passive ask order is fully filled, erase it and get the next iterator
-						  if (bid_order->getRemainingQuantity() == 0) {
-								bid_it = bid_list.erase(bid_it);
-						  } else {
-								++bid_it;
-						  }
-					 }
-					 // If the price level is completely empty, safely erase the price level
-					 if (bid_list.empty()) {
-						  it = bids_.erase(it);
-					 } else {
-						  ++it;
-					 }
-				}
-		  return order->getRemainingQuantity() != order->getInitialQuantity();
-}
-template<typename BookType>
-bool OrderBook::FOK(BookType &book,std::unique_ptr<Order> &order){
-	 auto it = book.begin();
-	 while(it != book.end()){
-		  auto& orders = it->second;
-		  auto order_it = orders.begin();
-		  while(order_it != orders.end()){
-				auto& book_order = *order_it;
-				std::cout << "Aktualis order:" << '\n';
-				book_order->printOrder();
-				if(book_order->getInitialQuantity() == order->getInitialQuantity()){
-					 if(order->getSide() == Side::BUY && order->getPrice() >= book_order->getPrice()){
-						  uint64_t fill_prc = std::min(order->getPrice(),book_order->getPrice());
-						  TradeInfo bid_inf(order->getId(), fill_prc, Side::BUY, order->getRemainingQuantity(), order->getInitialQuantity());
-						  TradeInfo ask_inf(book_order->getId(), fill_prc, Side::SELL, book_order->getRemainingQuantity(), book_order->getInitialQuantity());
-						  trades_.emplace_back(bid_inf, ask_inf);
-						  return true;
-					 }else{
-						  uint64_t fill_prc = std::max(order->getPrice(),book_order->getPrice());
-						  TradeInfo bid_inf(order->getId(), fill_prc, Side::BUY, order->getRemainingQuantity(), order->getInitialQuantity());
-						  TradeInfo ask_inf(book_order->getId(), fill_prc, Side::SELL, book_order->getRemainingQuantity(), book_order->getInitialQuantity());
-						  trades_.emplace_back(bid_inf, ask_inf);
-						  return true;
-					 }
-				}
-				++order_it;
-		  }
-		  ++it;
-	 }
-	 return false;
-}
-/*
-bool OrderBook::FOK(std::map<int64_t,Orders,std::greater<int64_t>> & book,std::unique_ptr<Order> &order){
-	 auto it = book.begin();
-	 while(it != book.end() && order->getRemainingQuantity() > 0){
-		  auto& order_list = it->second;
-		  auto order_it = order_list.begin();
-		  while(order_it != order_list.end()){
-				auto &alias = *order_it;
-				if(order->getInitialQuantity() == alias->getInitialQuantity()){
-					 uint64_t fill_prc = alias->getPrice();
-					 alias->setQuantity(order->getInitialQuantity());
-					 order->setQuantity(order->getInitialQuantity());
-					 if(order->getSide() == Side::BUY){
-						  TradeInfo bid(order->getId(),fill_prc,Side::BUY,0,order->getInitialQuantity());
-						  TradeInfo ask(alias->getId(),fill_prc,Side::SELL,alias->getRemainingQuantity(),alias->getInitialQuantity());
-						  trades_.emplace_back(bid,ask);
-						  return true;
-					 }else{
-						  TradeInfo bid(order->getId(),fill_prc,Side::BUY,0,order->getInitialQuantity());
-						  TradeInfo ask(alias->getId(),fill_prc,Side::SELL,alias->getRemainingQuantity(),alias->getInitialQuantity());
-						  trades_.emplace_back(ask,bid);
-						  return true;
-					 }
-				}	
-				++order_it;
-		  }
-		  ++it;
-	 }
-	 return false;
-}
-bool OrderBook::FOK(std::map<int64_t,Orders> & book,std::unique_ptr<Order> &order){
-	 auto it = book.begin();
-	 while(it != book.end() && order->getRemainingQuantity() > 0){
-		  auto& order_list = it->second;
-		  auto order_it = order_list.begin();
-		  while(order_it != order_list.end()){
-				auto &alias = *order_it;
-				if(order->getInitialQuantity() == alias->getInitialQuantity()){
-					 uint64_t fill_prc = alias->getPrice();
-					 alias->setQuantity(order->getInitialQuantity());
-					 order->setQuantity(order->getInitialQuantity());
-					 if(order->getSide() == Side::BUY){
-						  TradeInfo bid(order->getId(),fill_prc,Side::BUY,0,order->getInitialQuantity());
-						  TradeInfo ask(alias->getId(),fill_prc,Side::SELL,alias->getRemainingQuantity(),alias->getInitialQuantity());
-						  trades_.emplace_back(bid,ask);
-						  return true;
-					 }else{
-						  TradeInfo bid(order->getId(),fill_prc,Side::BUY,0,order->getInitialQuantity());
-						  TradeInfo ask(alias->getId(),fill_prc,Side::SELL,alias->getRemainingQuantity(),alias->getInitialQuantity());
-						  trades_.emplace_back(ask,bid);
-						  return true;
-					 }
-				}	
-				++order_it;
-		  }
-		  ++it;
-	 }
-	 return false;
-}
-*/
 /*
  * Notes for ordertypes:
  * ___NOT LISTED IN THE BOOK___
