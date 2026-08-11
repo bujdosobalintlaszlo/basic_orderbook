@@ -1,0 +1,19 @@
+# CMake build libs
+build/
+bin/
+lib/
+out/
+
+# Gen Makefiles ^ CMake cache
+Makefile
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+
+# Obj files
+*.o
+*.a
+*.so
+*.dylib
+*.exe
+
