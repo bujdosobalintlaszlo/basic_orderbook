@@ -10,7 +10,7 @@ Order::Order(uint64_t id, OrderType orderType, Side side, uint64_t price, uint64
     if (quantity <= 0) {
         throw std::invalid_argument("Order quantity cannot be zero! Order ID: " + std::to_string(id));
     }
-    if (price <= 0.0) {
+    if (price <= 0) {
         throw std::invalid_argument("Order price must be positive! Order ID: " 
             + std::to_string(id) + " with PRICE: " + std::to_string(price));
     }
@@ -44,14 +44,18 @@ double Order::getFufillmentOfOrder() const {
 bool Order::isFilled() const { 
     return remaining_quantity_ == 0; 
 }
+double Order::convertToDecimal(uint64_t price) const{
+	 return price / 10000.0;
+}
 //PS.: SUPPORING 4 decimals
 void Order::printOrder() const {
     std::cout << "Order ID: " << getId() 
-              << ", Type: " << static_cast<int>(getOrderType()) 
-              << ", Side: " << (getSide() == Side::BUY ? "Buy" : "Sell")
-              << ", Price: " << getPrice() 
+              << ", Type: " << getOrderType() 
+              << ", Side: " << getSide()
+              << ", Price: " << convertToDecimal(getPrice()) 
               << ", Initial Qty: " << getInitialQuantity() 
               << ", Remaining Qty: " << getRemainingQuantity() 
               << ", Fulfillment: " << getFufillmentOfOrder() << "%\n";
 }
+
 

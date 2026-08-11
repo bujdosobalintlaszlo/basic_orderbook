@@ -333,6 +333,7 @@ src/ordertype.o: src/ordertype.cpp.o
 # target to build an object file
 src/ordertype.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/OrderBook.dir/build.make CMakeFiles/OrderBook.dir/src/ordertype.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/unit_tests.dir/build.make CMakeFiles/unit_tests.dir/src/ordertype.cpp.o
 .PHONY : src/ordertype.cpp.o
 
 src/ordertype.i: src/ordertype.cpp.i
@@ -341,6 +342,7 @@ src/ordertype.i: src/ordertype.cpp.i
 # target to preprocess a source file
 src/ordertype.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/OrderBook.dir/build.make CMakeFiles/OrderBook.dir/src/ordertype.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/unit_tests.dir/build.make CMakeFiles/unit_tests.dir/src/ordertype.cpp.i
 .PHONY : src/ordertype.cpp.i
 
 src/ordertype.s: src/ordertype.cpp.s
@@ -349,7 +351,35 @@ src/ordertype.s: src/ordertype.cpp.s
 # target to generate assembly for a file
 src/ordertype.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/OrderBook.dir/build.make CMakeFiles/OrderBook.dir/src/ordertype.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/unit_tests.dir/build.make CMakeFiles/unit_tests.dir/src/ordertype.cpp.s
 .PHONY : src/ordertype.cpp.s
+
+src/side.o: src/side.cpp.o
+.PHONY : src/side.o
+
+# target to build an object file
+src/side.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/OrderBook.dir/build.make CMakeFiles/OrderBook.dir/src/side.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/unit_tests.dir/build.make CMakeFiles/unit_tests.dir/src/side.cpp.o
+.PHONY : src/side.cpp.o
+
+src/side.i: src/side.cpp.i
+.PHONY : src/side.i
+
+# target to preprocess a source file
+src/side.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/OrderBook.dir/build.make CMakeFiles/OrderBook.dir/src/side.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/unit_tests.dir/build.make CMakeFiles/unit_tests.dir/src/side.cpp.i
+.PHONY : src/side.cpp.i
+
+src/side.s: src/side.cpp.s
+.PHONY : src/side.s
+
+# target to generate assembly for a file
+src/side.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/OrderBook.dir/build.make CMakeFiles/OrderBook.dir/src/side.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/unit_tests.dir/build.make CMakeFiles/unit_tests.dir/src/side.cpp.s
+.PHONY : src/side.cpp.s
 
 test/orderbook_test.o: test/orderbook_test.cpp.o
 .PHONY : test/orderbook_test.o
@@ -406,6 +436,9 @@ help:
 	@echo "... src/ordertype.o"
 	@echo "... src/ordertype.i"
 	@echo "... src/ordertype.s"
+	@echo "... src/side.o"
+	@echo "... src/side.i"
+	@echo "... src/side.s"
 	@echo "... test/orderbook_test.o"
 	@echo "... test/orderbook_test.i"
 	@echo "... test/orderbook_test.s"

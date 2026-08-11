@@ -25,6 +25,12 @@
 },
 {
   "directory": "/home/bujdosobalint/basic_orderbook/build",
+  "command": "/usr/bin/c++  -I/home/bujdosobalint/basic_orderbook/include -std=gnu++20 -o CMakeFiles/OrderBook.dir/src/side.cpp.o -c /home/bujdosobalint/basic_orderbook/src/side.cpp",
+  "file": "/home/bujdosobalint/basic_orderbook/src/side.cpp",
+  "output": "CMakeFiles/OrderBook.dir/src/side.cpp.o"
+},
+{
+  "directory": "/home/bujdosobalint/basic_orderbook/build",
   "command": "/usr/bin/c++  -I/home/bujdosobalint/basic_orderbook/include -isystem /home/bujdosobalint/basic_orderbook/third_party/googletest/googletest/include -isystem /home/bujdosobalint/basic_orderbook/third_party/googletest/googletest -std=gnu++20 -o CMakeFiles/unit_tests.dir/test/orderbook_test.cpp.o -c /home/bujdosobalint/basic_orderbook/test/orderbook_test.cpp",
   "file": "/home/bujdosobalint/basic_orderbook/test/orderbook_test.cpp",
   "output": "CMakeFiles/unit_tests.dir/test/orderbook_test.cpp.o"
@@ -40,6 +46,18 @@
   "command": "/usr/bin/c++  -I/home/bujdosobalint/basic_orderbook/include -isystem /home/bujdosobalint/basic_orderbook/third_party/googletest/googletest/include -isystem /home/bujdosobalint/basic_orderbook/third_party/googletest/googletest -std=gnu++20 -o CMakeFiles/unit_tests.dir/src/orderbook.cpp.o -c /home/bujdosobalint/basic_orderbook/src/orderbook.cpp",
   "file": "/home/bujdosobalint/basic_orderbook/src/orderbook.cpp",
   "output": "CMakeFiles/unit_tests.dir/src/orderbook.cpp.o"
+},
+{
+  "directory": "/home/bujdosobalint/basic_orderbook/build",
+  "command": "/usr/bin/c++  -I/home/bujdosobalint/basic_orderbook/include -isystem /home/bujdosobalint/basic_orderbook/third_party/googletest/googletest/include -isystem /home/bujdosobalint/basic_orderbook/third_party/googletest/googletest -std=gnu++20 -o CMakeFiles/unit_tests.dir/src/ordertype.cpp.o -c /home/bujdosobalint/basic_orderbook/src/ordertype.cpp",
+  "file": "/home/bujdosobalint/basic_orderbook/src/ordertype.cpp",
+  "output": "CMakeFiles/unit_tests.dir/src/ordertype.cpp.o"
+},
+{
+  "directory": "/home/bujdosobalint/basic_orderbook/build",
+  "command": "/usr/bin/c++  -I/home/bujdosobalint/basic_orderbook/include -isystem /home/bujdosobalint/basic_orderbook/third_party/googletest/googletest/include -isystem /home/bujdosobalint/basic_orderbook/third_party/googletest/googletest -std=gnu++20 -o CMakeFiles/unit_tests.dir/src/side.cpp.o -c /home/bujdosobalint/basic_orderbook/src/side.cpp",
+  "file": "/home/bujdosobalint/basic_orderbook/src/side.cpp",
+  "output": "CMakeFiles/unit_tests.dir/src/side.cpp.o"
 },
 {
   "directory": "/home/bujdosobalint/basic_orderbook/build/third_party/googletest/googlemock",

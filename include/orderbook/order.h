@@ -4,6 +4,14 @@
 #include<iostream>
 #include<memory>
 class Order{
+private:
+	 uint64_t id_;
+	 OrderType orderType_;
+	 Side side_;
+	 int64_t price_;
+	 uint64_t initial_quantity_;
+	 uint64_t remaining_quantity_;
+	 double convertToDecimal(uint64_t price) const;
 public:
 	 Order(uint64_t id,OrderType orderType,Side side,uint64_t price,uint64_t quantity);
 	 
@@ -23,11 +31,4 @@ public:
 	 double getFufillmentOfOrder() const;
 	 void printOrder() const;
 	 bool isFilled() const; 
-private:
-	 uint64_t id_;
-	 OrderType orderType_;
-	 Side side_;
-	 int64_t price_;
-	 uint64_t initial_quantity_;
-	 uint64_t remaining_quantity_;
 };

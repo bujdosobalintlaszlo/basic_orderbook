@@ -11,6 +11,7 @@ add_executable(OrderBook
     src/order.cpp
     src/orderbook.cpp
 	 src/ordertype.cpp
+	 src/side.cpp
 )
 
 target_include_directories(OrderBook PRIVATE include)
@@ -23,6 +24,8 @@ add_executable(unit_tests
     test/orderbook_test.cpp
     src/order.cpp
     src/orderbook.cpp
+	 src/ordertype.cpp
+	 src/side.cpp
 )
 
 target_include_directories(unit_tests PRIVATE include)

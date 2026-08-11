@@ -1,6 +1,6 @@
 #pragma once
 #include<string>
-#include<iostream>
+#include <iosfwd>
 //PS.:GOTTA ADD LIMIT
 enum class OrderType {GoodTillCancel,FillAndKill,FillOrKill,GoodForDay,Market,Limit,PostOnly,IceBerg};
 

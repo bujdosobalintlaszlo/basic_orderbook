@@ -11,15 +11,16 @@ TEST(OrderTestSuite,CreateValidObject){
 	 EXPECT_FALSE(order.isFilled());
 	 EXPECT_EQ(order.getRemainingQuantity(),order.getInitialQuantity());
 }
-TEST(OrderTestSuite,CreateOrderWithInvalidQunatity){
-	 try{
-		  Order order(1,OrderType::PostOnly,Side::BUY,16767,-67);
-		  FAIL() << "Expected a std::invalid_argument but got nothing!";
-	 }catch(const std::invalid_argument &e){
-		  EXPECT_STREQ(e.what(),"Order quantity cannot be zero! Order ID: 1");
-	 }catch(...){
-		  FAIL() << "Didn't result in std::invalid_argument!";
-	 }
+
+TEST(OrderTestSuite, CreateOrderWithZeroQuantity) {
+    try {
+        Order order(1, OrderType::PostOnly, Side::BUY, 16767, 0);
+        FAIL() << "Expected std::invalid_argument for zero quantity!";
+    } catch (const std::invalid_argument &e) {
+        EXPECT_STREQ(e.what(), "Order quantity cannot be zero! Order ID: 1");
+    } catch (...) {
+        FAIL() << "Expected std::invalid_argument, but caught a different exception!";
+    }
 }
 
 TEST(OrderTestSuite,CreateOrderWithInvalidPrice){
@@ -64,6 +65,7 @@ TEST(OrderTestSuite,ValidFullOrderFill){
 TEST(OrderTestSuite,InvalidOrderFill){
 	 try{
 		  Order order(1,OrderType::PostOnly,Side::BUY,16767,10);
+		  order.fill(67);
 		  FAIL() << "Expected std::invalid_argument exception but got no exception!";
 	 }catch(const std::invalid_argument &e){
 		  EXPECT_STREQ(e.what(),"Tried to fill more than remaining quantity!");

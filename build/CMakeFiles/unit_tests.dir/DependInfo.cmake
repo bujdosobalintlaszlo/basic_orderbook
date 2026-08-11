@@ -10,6 +10,8 @@ set(CMAKE_DEPENDS_LANGUAGES
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/home/bujdosobalint/basic_orderbook/src/order.cpp" "CMakeFiles/unit_tests.dir/src/order.cpp.o" "gcc" "CMakeFiles/unit_tests.dir/src/order.cpp.o.d"
   "/home/bujdosobalint/basic_orderbook/src/orderbook.cpp" "CMakeFiles/unit_tests.dir/src/orderbook.cpp.o" "gcc" "CMakeFiles/unit_tests.dir/src/orderbook.cpp.o.d"
+  "/home/bujdosobalint/basic_orderbook/src/ordertype.cpp" "CMakeFiles/unit_tests.dir/src/ordertype.cpp.o" "gcc" "CMakeFiles/unit_tests.dir/src/ordertype.cpp.o.d"
+  "/home/bujdosobalint/basic_orderbook/src/side.cpp" "CMakeFiles/unit_tests.dir/src/side.cpp.o" "gcc" "CMakeFiles/unit_tests.dir/src/side.cpp.o.d"
   "/home/bujdosobalint/basic_orderbook/test/orderbook_test.cpp" "CMakeFiles/unit_tests.dir/test/orderbook_test.cpp.o" "gcc" "CMakeFiles/unit_tests.dir/test/orderbook_test.cpp.o.d"
   )
 

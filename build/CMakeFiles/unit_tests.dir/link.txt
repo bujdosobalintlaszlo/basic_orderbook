@@ -1,1 +1,1 @@
-/usr/bin/c++ CMakeFiles/unit_tests.dir/test/orderbook_test.cpp.o CMakeFiles/unit_tests.dir/src/order.cpp.o CMakeFiles/unit_tests.dir/src/orderbook.cpp.o -o unit_tests  lib/libgtest_main.a lib/libgtest.a 
+/usr/bin/c++ CMakeFiles/unit_tests.dir/test/orderbook_test.cpp.o CMakeFiles/unit_tests.dir/src/order.cpp.o CMakeFiles/unit_tests.dir/src/orderbook.cpp.o CMakeFiles/unit_tests.dir/src/ordertype.cpp.o CMakeFiles/unit_tests.dir/src/side.cpp.o -o unit_tests  lib/libgtest_main.a lib/libgtest.a 
