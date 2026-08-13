@@ -28,15 +28,37 @@ void OrderBook::displayAsks() const {
     }
 }
 template<typename BookType>
-Trades OrederBook::matchMarketOrder(OrderPtr &order,BookType &book){
+Trades OrderBook::matchMarketOrder(OrderPtr &order,BookType &book){
 	 Trades trades{};
 	 auto it = book.begin();
 	 while(it!=book.end() && order->getRemainingQuantity() >0){
 		  auto &orders = it->second;
-		  auto order_it = orders.begin();
-		  while(order_it != orders.end() && order->getRemainingQuantity() >0){
+		  auto orders_it = orders.begin();
+		  while(orders_it != orders.end() && order->getRemainingQuantity() >0){
 				auto &curr_order = *orders_it;
-				uint64_t fill_qnt{0};
+				uint64_t fill_qty{0};
+				if(order->getSide() == Side::BUY){
+					 fill_qty = std::min(order->getRemainingQuantity(), curr_order->getRemainingQuantity());
+				}
+				else if(order->getSide() == Side::SELL){
+					 fill_qty = std::max(order->getRemainingQuantity(), curr_order->getRemainingQuantity());
+				}
+				if(fill_qty > 0){
+				uint64_t fill_price = curr_order->getPrice();
+					 order->fill(fill_qty);
+					 curr_order->fill(fill_qty);
+					 trades.push_back(createTradeData(order, curr_order));
+				}
+				if (curr_order->getRemainingQuantity() == 0) {
+					 orders_it = orders.erase(orders_it);
+				} else {
+					 ++orders_it;
+				}	
+		  }
+		  if (orders.empty()) {
+				it = book.erase(it);
+		  } else {
+				++it;
 		  }
 	 }
 
@@ -236,6 +258,11 @@ bool OrderBook::placeOrder(OrderPtr order){
 				}
 				break;
 		  case OrderType::Limit:
+				if(order->getSide() == Side::BUY){
+					 matchLimitOrder(order,bids_);
+				}else{
+					 matchLimitOrder(order,asks_);
+				}
 				break;
 	 }
 	 return true;
