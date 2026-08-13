@@ -27,8 +27,8 @@ void OrderBook::displayAsks() const {
         }
     }
 }
-template<typename BookType>
-Trades OrderBook::matchMarketOrder(OrderPtr &order,BookType &book){
+template<typename Compare>
+Trades OrderBook::matchMarketOrder(OrderPtr &order,std::map<Price,Orders, Compare> &book){
 	 Trades trades{};
 	 auto it = book.begin();
 	 while(it!=book.end() && order->getRemainingQuantity() >0){
