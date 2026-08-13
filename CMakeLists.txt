@@ -22,6 +22,7 @@ add_subdirectory(third_party/googletest)
 #test
 add_executable(unit_tests
     test/orderbook_test.cpp
+	 test/order_test.cpp
     src/order.cpp
     src/orderbook.cpp
 	 src/ordertype.cpp

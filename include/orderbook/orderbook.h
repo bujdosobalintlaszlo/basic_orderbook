@@ -27,6 +27,7 @@ public:
 	 const std::map<uint64_t,Orders>& getAsks() const noexcept;
 	 OrderBook();
 	 bool placeOrder(OrderPtr order);
+	 bool isInBook(const OrderPtr &order) const;
 	 void displayBids() const;
 	 void displayAsks() const;
 	 template <typename Compare>
@@ -34,9 +35,10 @@ public:
 	 template<typename Comparator>
 	 bool insertIntoBook(OrderPtr &order,std::map<Price,Orders,Comparator> &book);
 	 Trade createTradeData(const OrderPtr &bidOrder,const OrderPtr &askOrder);
-	 bool cancelOrder(uint64_t id,Side side);
+	 bool cancelOrder(uint64_t id);
 	 template<typename Comparator>
 	 Trades FOK(OrderPtr &order,std::map<Price,Orders,Comparator> &book);
-	 
+	 template<typename BookType>
+	 bool cancel(BookType& book,std::unordered_map<uint64_t,InsertInfo>::iterator order_it);
 };
 

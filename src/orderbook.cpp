@@ -27,13 +27,27 @@ void OrderBook::displayAsks() const {
         }
     }
 }
+template<typename BookType>
+Trades OrederBook::matchMarketOrder(OrderPtr &order,BookType &book){
+	 Trades trades{};
+	 auto it = book.begin();
+	 while(it!=book.end() && order->getRemainingQuantity() >0){
+		  auto &orders = it->second;
+		  auto order_it = orders.begin();
+		  while(order_it != orders.end() && order->getRemainingQuantity() >0){
+				auto &curr_order = *orders_it;
+				uint64_t fill_qnt{0};
+		  }
+	 }
 
+	 return trades;
+}
 ///<summary>
 ///params: the orders pointer, and bids_ or asks_ as a refference depending on BUY or SELL side order.
 ///return: A vector of trades which went trough. Could be empty, which means it couldn't macth.
 ///</summary>
 template <typename Compare>
-Trades OrderBook::matchMarketOrder(OrderPtr &order, std::map<Price,Orders, Compare> &book) {
+Trades OrderBook::matchLimitOrder(OrderPtr &order, std::map<Price,Orders, Compare> &book) {
 	 Trades trades{};
 	 auto it = book.begin();
 	 while (it != book.end() && order->getRemainingQuantity() > 0) {
@@ -91,28 +105,34 @@ bool OrderBook::insertIntoBook(OrderPtr &order,std::map<Price,Orders,Comparator>
 	 auto order_it = std::prev(it->second.end());
 	 OrderBook::InsertInfo i(price,side,order_it);
 	 orders_.insert({id,i}); 
+	 std::cout << orders_.size() << " SIZE OF ORDERS" << '\n';
 	 return true;
 }
 
-bool OrderBook::cancelOrder(uint64_t id,Side side){
+bool OrderBook::cancelOrder(uint64_t id){
 	 auto order_it = orders_.find(id);
 	 if(order_it != orders_.end()){
 		  if(order_it->second.side_ == Side::BUY){
-			  auto level_it = bids_.find(order_it->second.price_);
-			  if(level_it != bids_.end()){
-					 level_it->second.erase(order_it->second.it_);
-					 orders_.erase(order_it);
-					 return true;
-			  }
-		  }else{
-				auto level_it = asks_.find(order_it->second.price_);
-				if(level_it != asks_.end()){
-					 level_it->second.erase(order_it->second.it_);
-					 orders_.erase(order_it);
-					 return true;
-				}
+				return cancel(bids_,order_it);
+	 }else{
+		  return cancel(asks_,order_it);
 		  }
-	 } 
+	 }
+		  return false;
+} 
+template<typename BookType>
+bool OrderBook::cancel(BookType& book,std::unordered_map<uint64_t,InsertInfo>::iterator order_it){
+	 if(order_it != orders_.end()){
+		  auto level_it = book.find(order_it->second.price_);
+		  if(level_it != book.end()){
+				level_it->second.erase(order_it->second.it_);
+				if(level_it->second.empty()){
+					 book.erase(level_it);
+				}
+				orders_.erase(order_it);
+				return true;
+		  }
+	 }
 	 return false;
 }
 template<typename Comparator>
@@ -149,7 +169,14 @@ Trades OrderBook::FOK(OrderPtr &order,std::map<Price,Orders,Comparator> &book){
 	}
 	return trades;
 }
-
+bool OrderBook::isInBook(const OrderPtr &order) const {
+    if (!order) return false;
+	 auto it = orders_.find(order->getId());
+	 if(it != orders_.end()){
+		  return true;
+	 }
+	 return false;
+}
 bool OrderBook::placeOrder(OrderPtr order){
 	 switch(order->getOrderType()){
 		  case OrderType::GoodForDay:
@@ -207,6 +234,8 @@ bool OrderBook::placeOrder(OrderPtr order){
 				else{
 					 FOK(order,bids_);
 				}
+				break;
+		  case OrderType::Limit:
 				break;
 	 }
 	 return true;

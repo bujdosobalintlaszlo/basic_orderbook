@@ -1,79 +1,35 @@
 #include<gtest/gtest.h>
-#include"orderbook/order.h"
-TEST(OrderTestSuite,CreateValidObject){
-	 Order order(1,OrderType::PostOnly,Side::BUY,16767,67);
-	 EXPECT_EQ(order.getId(),1);
-	 EXPECT_EQ(order.getOrderType(),OrderType::PostOnly);
-	 EXPECT_EQ(order.getSide(),Side::BUY);
-	 EXPECT_EQ(order.getPrice(),16767);
-	 EXPECT_EQ(order.getInitialQuantity(),67);
-	 EXPECT_EQ(order.filledQuantity(),0);
-	 EXPECT_FALSE(order.isFilled());
-	 EXPECT_EQ(order.getRemainingQuantity(),order.getInitialQuantity());
+#include "orderbook/orderbook.h"
+#include<memory>
+TEST(OrderBookTestSuite,CreatingBookWithOrders){
+	 Order o(1,OrderType::PostOnly,Side::BUY,6700000,67);
+	 OrderBook ob{};
+	 ob.placeOrder(std::make_unique<Order>(o));
+	 EXPECT_EQ(ob.getBids().size(),1);
+
 }
 
-TEST(OrderTestSuite, CreateOrderWithZeroQuantity) {
-    try {
-        Order order(1, OrderType::PostOnly, Side::BUY, 16767, 0);
-        FAIL() << "Expected std::invalid_argument for zero quantity!";
-    } catch (const std::invalid_argument &e) {
-        EXPECT_STREQ(e.what(), "Order quantity cannot be zero! Order ID: 1");
-    } catch (...) {
-        FAIL() << "Expected std::invalid_argument, but caught a different exception!";
-    }
+TEST(OrderBookTestSuite,AdddingRedundantIdsToTheBook){
+	 Order o1(1,OrderType::PostOnly,Side::BUY,6700000,67);
+	 Order o2(1,OrderType::PostOnly,Side::BUY,6700000,67);
+	 OrderBook ob{};
+	 ob.placeOrder(std::make_unique<Order>(o1));
+	 ob.placeOrder(std::make_unique<Order>(o2));
+	 EXPECT_EQ(ob.getBids().size(),1);
 }
 
-TEST(OrderTestSuite,CreateOrderWithInvalidPrice){
-	 try{
-		  Order order(1,OrderType::PostOnly,Side::BUY,0,67);
-		  FAIL() << "Expected a std::invalid_argument but got nothing!";
-	 }catch(const std::invalid_argument &e){
-		  EXPECT_STREQ(e.what(),"Order price must be positive! Order ID: 1 with PRICE: 0");
-	 }catch(...){
-		  FAIL() << "Didn't result in std::invalid_argument!";
-	 }
+TEST(OrderBookTestSuite,CancelValidOrder){
+	 Order o(1,OrderType::PostOnly,Side::BUY,6700000,67);
+	 OrderBook ob{};
+	 ob.placeOrder(std::make_unique<Order>(o));
+	 ob.cancelOrder(1);
+	 EXPECT_EQ(ob.getBids().size(),0);
 }
 
-TEST(OrderTestSuite,ValidPartialOrderFill){
-	 Order order(1,OrderType::PostOnly,Side::BUY,16767,10);
-	 order.fill(8);
-	 EXPECT_EQ(order.getId(),1);
-	 EXPECT_EQ(order.getOrderType(),OrderType::PostOnly);
-	 EXPECT_EQ(order.getSide(),Side::BUY);
-	 EXPECT_EQ(order.getPrice(),16767);
-	 EXPECT_EQ(order.getInitialQuantity(),10);
-	 EXPECT_EQ(order.getRemainingQuantity(),2);
-	 EXPECT_EQ(order.filledQuantity(),8);
-	 EXPECT_FALSE(order.isFilled());
-	 EXPECT_EQ(order.getFufillmentOfOrder(),80.0);
-}
-
-TEST(OrderTestSuite,ValidFullOrderFill){
-	 Order order(1,OrderType::PostOnly,Side::BUY,16767,10);
-	 order.fill(10);
-	 EXPECT_EQ(order.getId(),1);
-	 EXPECT_EQ(order.getOrderType(),OrderType::PostOnly);
-	 EXPECT_EQ(order.getSide(),Side::BUY);
-	 EXPECT_EQ(order.getPrice(),16767);
-	 EXPECT_EQ(order.getInitialQuantity(),10);
-	 EXPECT_EQ(order.getRemainingQuantity(),0);
-	 EXPECT_EQ(order.filledQuantity(),10);
-	 EXPECT_TRUE(order.isFilled());
-	 EXPECT_EQ(order.getFufillmentOfOrder(),100.0);
-}
-
-TEST(OrderTestSuite,InvalidOrderFill){
-	 try{
-		  Order order(1,OrderType::PostOnly,Side::BUY,16767,10);
-		  order.fill(67);
-		  FAIL() << "Expected std::invalid_argument exception but got no exception!";
-	 }catch(const std::invalid_argument &e){
-		  EXPECT_STREQ(e.what(),"Tried to fill more than remaining quantity!");
-	 }catch(...){
-		  FAIL() << "Didn't result in std::invalid_argument!";
-	 }
-}
-int main(int argc,char** argv){
-	 testing::InitGoogleTest(&argc,argv);
-	 return RUN_ALL_TESTS();
+TEST(OrderBookTestSuite,CancelInvalidOrder){
+	 Order o(1,OrderType::PostOnly,Side::BUY,6700000,67);
+	 OrderBook ob{};
+	 ob.placeOrder(std::make_unique<Order>(o));
+	 ob.cancelOrder(2);
+	 EXPECT_EQ(ob.getBids().size(),1);
 }

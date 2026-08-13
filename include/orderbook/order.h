@@ -17,7 +17,7 @@ public:
 	 
 	 //getters
 	 uint64_t getId() const;
-	 OrderType getOrderType()const;
+	 OrderType getOrderType() const;
 	 Side getSide()const;
 	 uint64_t getPrice()const;
 	 uint64_t getInitialQuantity()const;
