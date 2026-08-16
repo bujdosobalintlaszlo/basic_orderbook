@@ -1,6 +1,8 @@
 #include<memory>
 #include "orderbook/order.h"
 #include "orderbook/orderbook.h"
+#include "orderbook/trade_info.h"
+#include "orderbook/trade.h"
 
 int main(){
 	 Order o(1,OrderType::PostOnly,Side::BUY,8392132,1);
@@ -11,7 +13,12 @@ int main(){
 	 ob.placeOrder(std::make_unique<Order>(o2));
 	 ob.displayBids();
 	 ob.displayAsks();
-	 //ob.placeOrder(std::make_unique<Order>(o3));
+	 std::cout << "_____Trades_____" << '\n';
+	 Trades trades = ob.placeOrder(std::make_unique<Order>(o3));
+	 std::cout << "Kötések száma: " << trades.size() << std::endl;
+	 for(Trade t: trades){
+		  std::cout << t << '\n';
+	 }
 	 //ob.placeOrder(std::make_unique<Order>(o3));
 	 ob.displayBids();
 	 ob.displayAsks();

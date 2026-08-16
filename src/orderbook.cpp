@@ -162,14 +162,18 @@ Trades OrderBook::FOK(OrderPtr &order,std::map<Price,Orders,Comparator> &book){
 	Trades trades{};
 	auto it = book.begin();
 	while(it != book.end()){
+		  std::cout << "KulsoVy loopban" << '\n';
 		  auto &orders = it->second;
 		  auto orders_it = orders.begin();
 		  while(orders_it != orders.end()){
+				std::cout << "belso loopban" << '\n';
 				auto &current_order = *orders_it;
 				if(current_order->getInitialQuantity() == order->getInitialQuantity()){
 					 uint64_t fill_qty{0};
 					 if(order->getSide() == Side::BUY && order->getPrice() >= current_order->getPrice()){
+						  std::cout << "BUYBAN" << '\n';
 						  fill_qty = std::min(order->getRemainingQuantity(), current_order->getRemainingQuantity());
+//						  std::cout << fill_qty << " FILL QUNAT" <, '
 					 }
 					 else if(order->getSide() == Side::SELL && order->getPrice() <= current_order->getPrice()){
 						  fill_qty = std::max(order->getRemainingQuantity(), current_order->getRemainingQuantity());
@@ -188,6 +192,11 @@ Trades OrderBook::FOK(OrderPtr &order,std::map<Price,Orders,Comparator> &book){
 					 } 
 				}
 		  }
+		  if (orders.empty()) {
+				it = book.erase(it);
+		  } else {
+				++it;
+		  }
 	}
 	return trades;
 }
@@ -199,7 +208,8 @@ bool OrderBook::isInBook(const OrderPtr &order) const {
 	 }
 	 return false;
 }
-bool OrderBook::placeOrder(OrderPtr order){
+Trades OrderBook::placeOrder(OrderPtr order){
+	 if(!order) throw std::invalid_argument("Invalid order was submited!");
 	 switch(order->getOrderType()){
 		  case OrderType::GoodForDay:
 				//implementation postponed
@@ -207,10 +217,12 @@ bool OrderBook::placeOrder(OrderPtr order){
 		  case OrderType::GoodTillCancel:
 				if(order->getSide() == Side::BUY){
 					 matchMarketOrder(order,asks_);
-					 return insertIntoBook(order,bids_);
+					 insertIntoBook(order,bids_);
+					 return Trades{};
 				}else{
 					 matchMarketOrder(order,bids_);
-					 return insertIntoBook(order,asks_);
+					 insertIntoBook(order,asks_);
+					 return Trades{};
 				}
 				break;
 		  //done 
@@ -218,11 +230,13 @@ bool OrderBook::placeOrder(OrderPtr order){
 				if(order->getSide() == Side::BUY){
 					 std::cout << "buyside P only" << '\n';
 					 std::cout << "END OF POST ONLY BUY" << '\n';
-					 return insertIntoBook(order,bids_);
+					 insertIntoBook(order,bids_);
+					 return Trades{};
 				}else{
 					 std::cout << "sellside P only" << '\n';
 					 std::cout << "END OF POST ONLY SELL" << '\n';
-					 return insertIntoBook(order,asks_);
+					 insertIntoBook(order,asks_);
+					 return Trades{};
 				}
 				break;
 		  
@@ -233,39 +247,39 @@ bool OrderBook::placeOrder(OrderPtr order){
 		  case OrderType::Market:
 				//ps.: INCORRECT IMPLEMENTATION - PRICE SHOULDNT MATTER IT EXECUTES AT WHATEVER PRICE
 				if(order->getSide() == Side::BUY){
-					 matchMarketOrder(order,asks_);
+					 return matchMarketOrder(order,asks_);
 				}
 				else{
-					 matchMarketOrder(order,bids_);
+					 return matchMarketOrder(order,bids_);
 				}
-				std::cout << "A MARKET Order has been filled with Order ID: " << order->getId() << ", with " << order->getRemainingQuantity() << " remaining unfilled." << '\n';
+				//std::cout << "A MARKET Order has been filled with Order ID: " << order->getId() << ", with " << order->getRemainingQuantity() << " remaining unfilled." << '\n';
 				break;
 		  case OrderType::FillAndKill:
 				if(order->getSide() == Side::BUY){
-					 matchMarketOrder(order,asks_);
+					 return matchMarketOrder(order,asks_);
 				}
 				else{
-					 matchMarketOrder(order,bids_);
+					 return matchMarketOrder(order,bids_);
 				}
 				break;
 
 		  case OrderType::FillOrKill:
 				if(order->getSide() == Side::BUY){
-					 FOK(order,asks_);
+					 return FOK(order,asks_);
 				}
 				else{
-					 FOK(order,bids_);
+					 return FOK(order,bids_);
 				}
 				break;
 		  case OrderType::Limit:
 				if(order->getSide() == Side::BUY){
-					 matchLimitOrder(order,bids_);
+					 return matchLimitOrder(order,bids_);
 				}else{
-					 matchLimitOrder(order,asks_);
+					return matchLimitOrder(order,asks_);
 				}
 				break;
 	 }
-	 return true;
+	 return Trades{};
 }
 
 /*

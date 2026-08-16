@@ -26,7 +26,7 @@ public:
 	 const std::map<uint64_t,Orders,std::greater<uint64_t>>& getBids() const noexcept;
 	 const std::map<uint64_t,Orders>& getAsks() const noexcept;
 	 OrderBook();
-	 bool placeOrder(OrderPtr order);
+	 Trades placeOrder(OrderPtr order);
 	 bool isInBook(const OrderPtr &order) const;
 	 void displayBids() const;
 	 void displayAsks() const;

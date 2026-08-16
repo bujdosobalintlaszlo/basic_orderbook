@@ -33,3 +33,8 @@ TEST(OrderBookTestSuite,CancelInvalidOrder){
 	 ob.cancelOrder(2);
 	 EXPECT_EQ(ob.getBids().size(),1);
 }
+
+TEST(OrderBookTestSuite,LimitOrderTest){
+	 Order o(1,OrderType::PostOnly,Side::BUY,670000,67);
+	 Order o2(2,OrderType::Limit,Side::BUY,670000,67);
+}
