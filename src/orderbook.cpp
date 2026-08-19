@@ -35,13 +35,7 @@ Trades OrderBook::matchMarketOrder(OrderPtr &order,std::map<Price,Orders, Compar
 		  auto orders_it = orders.begin();
 		  while(orders_it != orders.end() && order->getRemainingQuantity() >0){
 				auto &curr_order = *orders_it;
-				uint64_t fill_qty{0};
-				if(order->getSide() == Side::BUY){
-					 fill_qty = std::min(order->getRemainingQuantity(), curr_order->getRemainingQuantity());
-				}
-				else if(order->getSide() == Side::SELL){
-					 fill_qty = std::max(order->getRemainingQuantity(), curr_order->getRemainingQuantity());
-				}
+				uint64_t fill_qty = std::min(order->getRemainingQuantity(), curr_order->getRemainingQuantity());
 				if(fill_qty > 0){
 				uint64_t fill_price = curr_order->getPrice();
 					 order->fill(fill_qty);
@@ -81,7 +75,7 @@ Trades OrderBook::matchLimitOrder(OrderPtr &order, std::map<Price,Orders, Compar
 					 fill_qty = std::min(order->getRemainingQuantity(), current_order->getRemainingQuantity());
 				}
 				else if(order->getSide() == Side::SELL && order->getPrice() <= current_order->getPrice()){
-					 fill_qty = std::max(order->getRemainingQuantity(), current_order->getRemainingQuantity());
+					 fill_qty = std::min(order->getRemainingQuantity(), current_order->getRemainingQuantity());
 				}
 				if(fill_qty > 0){
 					 uint64_t fill_price = current_order->getPrice();
@@ -156,26 +150,24 @@ bool OrderBook::cancel(BookType& book,std::unordered_map<uint64_t,InsertInfo>::i
 	 }
 	 return false;
 }
+
+///FONTOS FOK tobb orderbol is fillelheto csak a vegere nem maradhta
 template<typename Comparator>
 Trades OrderBook::FOK(OrderPtr &order,std::map<Price,Orders,Comparator> &book){
 	Trades trades{};
 	auto it = book.begin();
 	while(it != book.end()){
-		  std::cout << "KulsoVy loopban" << '\n';
 		  auto &orders = it->second;
 		  auto orders_it = orders.begin();
 		  while(orders_it != orders.end()){
-				std::cout << "belso loopban" << '\n';
 				auto &current_order = *orders_it;
 				if(current_order->getInitialQuantity() == order->getInitialQuantity()){
 					 uint64_t fill_qty{0};
 					 if(order->getSide() == Side::BUY && order->getPrice() >= current_order->getPrice()){
-						  std::cout << "BUYBAN" << '\n';
 						  fill_qty = std::min(order->getRemainingQuantity(), current_order->getRemainingQuantity());
-//						  std::cout << fill_qty << " FILL QUNAT" <, '
 					 }
 					 else if(order->getSide() == Side::SELL && order->getPrice() <= current_order->getPrice()){
-						  fill_qty = std::max(order->getRemainingQuantity(), current_order->getRemainingQuantity());
+						  fill_qty = std::min(order->getRemainingQuantity(), current_order->getRemainingQuantity());
 					 }
 					 if(fill_qty > 0){
 						  uint64_t fill_price = current_order->getPrice();
@@ -183,12 +175,12 @@ Trades OrderBook::FOK(OrderPtr &order,std::map<Price,Orders,Comparator> &book){
 						  current_order->fill(fill_qty);
 						  trades.push_back(createTradeData(order, current_order));
 					 }
-					 //if the current order from the book got fully filled, then we remove it from the list, storing trades at the given price level
-					 if (current_order->getRemainingQuantity() == 0) {
-						  orders_it = orders.erase(orders_it);
-					 } else {
-						  ++orders_it;
-					 } 
+				}
+				//if the current order from the book got fully filled, then we remove it from the list, storing trades at the given price level
+				if (current_order->getRemainingQuantity() == 0) {
+					 orders_it = orders.erase(orders_it);
+				} else {
+					 ++orders_it;
 				}
 		  }
 		  if (orders.empty()) {
@@ -216,11 +208,15 @@ Trades OrderBook::placeOrder(OrderPtr order){
 		  case OrderType::GoodTillCancel:
 				if(order->getSide() == Side::BUY){
 					 matchMarketOrder(order,asks_);
-					 insertIntoBook(order,bids_);
+					 if(order->getRemainingQuantity() >0){
+						  insertIntoBook(order,bids_);
+					 }
 					 return Trades{};
 				}else{
 					 matchMarketOrder(order,bids_);
-					 insertIntoBook(order,asks_);
+					 if(order->getRemainingQuantity() > 0){
+						  insertIntoBook(order,asks_);
+					 }
 					 return Trades{};
 				}
 				break;
@@ -281,18 +277,3 @@ Trades OrderBook::placeOrder(OrderPtr order){
 	 return Trades{};
 }
 
-/*
- * Notes for ordertypes:
- * ___NOT LISTED IN THE BOOK___
- * - Market: Executed immediately no matter the price. Remaining amount is cancelled (or rejected if no liquidity). Won't get listed in the book.
- * - FillAndKill (Immediate-Or-Cancel -> IOC): Fills as much as it can at the given limit price or better. Remaining amount is cancelled immediately. Won't sit in the book.
- * - FillOrKill (FOK): If the order can be executed FULLY immediately at the given price or better, execute it. Otherwise cancel/reject the entire order. Won't sit in the book.
- * 
- * ___LISTED IN THE BOOK___
- * - GoodTillCancel (GTC): Stays in the book until fully filled or explicitly cancelled by the user.
- * - GoodForDay (GFD): Stays in the book until the end of the trading day (then auto-cancelled by the exchange).
- * 
- *
- * - PostOnly: Must ONLY act as a Maker (sit in the book). If it would execute immediately against an existing order (acting as a Taker), it gets cancelled instead of placed.
- * - IceBerg: A large order broken into smaller visible segments (e.g., 10,000 total size, but only displays 100 at a time in the book). Once a visible slice is filled, the next slice is pushed to the book.
- */
