@@ -1,2 +1,2 @@
-cmake_minimum_required(VERSION 4.4)
+cmake_minimum_required(VERSION 3.28)
 set(This orderbookTests)	

@@ -1,1 +1,80 @@
-build/compile_commands.json
+[
+{
+  "directory": "/home/bujdbalint/basic_orderbook",
+  "command": "/usr/bin/c++  -I/home/bujdbalint/basic_orderbook/include -std=gnu++20 -o CMakeFiles/OrderBook.dir/src/main.cpp.o -c /home/bujdbalint/basic_orderbook/src/main.cpp",
+  "file": "/home/bujdbalint/basic_orderbook/src/main.cpp",
+  "output": "CMakeFiles/OrderBook.dir/src/main.cpp.o"
+},
+{
+  "directory": "/home/bujdbalint/basic_orderbook",
+  "command": "/usr/bin/c++  -I/home/bujdbalint/basic_orderbook/include -std=gnu++20 -o CMakeFiles/OrderBook.dir/src/order.cpp.o -c /home/bujdbalint/basic_orderbook/src/order.cpp",
+  "file": "/home/bujdbalint/basic_orderbook/src/order.cpp",
+  "output": "CMakeFiles/OrderBook.dir/src/order.cpp.o"
+},
+{
+  "directory": "/home/bujdbalint/basic_orderbook",
+  "command": "/usr/bin/c++  -I/home/bujdbalint/basic_orderbook/include -std=gnu++20 -o CMakeFiles/OrderBook.dir/src/orderbook.cpp.o -c /home/bujdbalint/basic_orderbook/src/orderbook.cpp",
+  "file": "/home/bujdbalint/basic_orderbook/src/orderbook.cpp",
+  "output": "CMakeFiles/OrderBook.dir/src/orderbook.cpp.o"
+},
+{
+  "directory": "/home/bujdbalint/basic_orderbook",
+  "command": "/usr/bin/c++  -I/home/bujdbalint/basic_orderbook/include -std=gnu++20 -o CMakeFiles/OrderBook.dir/src/ordertype.cpp.o -c /home/bujdbalint/basic_orderbook/src/ordertype.cpp",
+  "file": "/home/bujdbalint/basic_orderbook/src/ordertype.cpp",
+  "output": "CMakeFiles/OrderBook.dir/src/ordertype.cpp.o"
+},
+{
+  "directory": "/home/bujdbalint/basic_orderbook",
+  "command": "/usr/bin/c++  -I/home/bujdbalint/basic_orderbook/include -std=gnu++20 -o CMakeFiles/OrderBook.dir/src/side.cpp.o -c /home/bujdbalint/basic_orderbook/src/side.cpp",
+  "file": "/home/bujdbalint/basic_orderbook/src/side.cpp",
+  "output": "CMakeFiles/OrderBook.dir/src/side.cpp.o"
+},
+{
+  "directory": "/home/bujdbalint/basic_orderbook",
+  "command": "/usr/bin/c++  -I/home/bujdbalint/basic_orderbook/include -std=gnu++20 -o CMakeFiles/OrderBook.dir/src/trade.cpp.o -c /home/bujdbalint/basic_orderbook/src/trade.cpp",
+  "file": "/home/bujdbalint/basic_orderbook/src/trade.cpp",
+  "output": "CMakeFiles/OrderBook.dir/src/trade.cpp.o"
+},
+{
+  "directory": "/home/bujdbalint/basic_orderbook",
+  "command": "/usr/bin/c++  -I/home/bujdbalint/basic_orderbook/include -std=gnu++20 -o CMakeFiles/unit_tests.dir/test/orderbook_test.cpp.o -c /home/bujdbalint/basic_orderbook/test/orderbook_test.cpp",
+  "file": "/home/bujdbalint/basic_orderbook/test/orderbook_test.cpp",
+  "output": "CMakeFiles/unit_tests.dir/test/orderbook_test.cpp.o"
+},
+{
+  "directory": "/home/bujdbalint/basic_orderbook",
+  "command": "/usr/bin/c++  -I/home/bujdbalint/basic_orderbook/include -std=gnu++20 -o CMakeFiles/unit_tests.dir/test/order_test.cpp.o -c /home/bujdbalint/basic_orderbook/test/order_test.cpp",
+  "file": "/home/bujdbalint/basic_orderbook/test/order_test.cpp",
+  "output": "CMakeFiles/unit_tests.dir/test/order_test.cpp.o"
+},
+{
+  "directory": "/home/bujdbalint/basic_orderbook",
+  "command": "/usr/bin/c++  -I/home/bujdbalint/basic_orderbook/include -std=gnu++20 -o CMakeFiles/unit_tests.dir/src/order.cpp.o -c /home/bujdbalint/basic_orderbook/src/order.cpp",
+  "file": "/home/bujdbalint/basic_orderbook/src/order.cpp",
+  "output": "CMakeFiles/unit_tests.dir/src/order.cpp.o"
+},
+{
+  "directory": "/home/bujdbalint/basic_orderbook",
+  "command": "/usr/bin/c++  -I/home/bujdbalint/basic_orderbook/include -std=gnu++20 -o CMakeFiles/unit_tests.dir/src/orderbook.cpp.o -c /home/bujdbalint/basic_orderbook/src/orderbook.cpp",
+  "file": "/home/bujdbalint/basic_orderbook/src/orderbook.cpp",
+  "output": "CMakeFiles/unit_tests.dir/src/orderbook.cpp.o"
+},
+{
+  "directory": "/home/bujdbalint/basic_orderbook",
+  "command": "/usr/bin/c++  -I/home/bujdbalint/basic_orderbook/include -std=gnu++20 -o CMakeFiles/unit_tests.dir/src/ordertype.cpp.o -c /home/bujdbalint/basic_orderbook/src/ordertype.cpp",
+  "file": "/home/bujdbalint/basic_orderbook/src/ordertype.cpp",
+  "output": "CMakeFiles/unit_tests.dir/src/ordertype.cpp.o"
+},
+{
+  "directory": "/home/bujdbalint/basic_orderbook",
+  "command": "/usr/bin/c++  -I/home/bujdbalint/basic_orderbook/include -std=gnu++20 -o CMakeFiles/unit_tests.dir/src/side.cpp.o -c /home/bujdbalint/basic_orderbook/src/side.cpp",
+  "file": "/home/bujdbalint/basic_orderbook/src/side.cpp",
+  "output": "CMakeFiles/unit_tests.dir/src/side.cpp.o"
+},
+{
+  "directory": "/home/bujdbalint/basic_orderbook",
+  "command": "/usr/bin/c++  -I/home/bujdbalint/basic_orderbook/include -std=gnu++20 -o CMakeFiles/unit_tests.dir/src/trade.cpp.o -c /home/bujdbalint/basic_orderbook/src/trade.cpp",
+  "file": "/home/bujdbalint/basic_orderbook/src/trade.cpp",
+  "output": "CMakeFiles/unit_tests.dir/src/trade.cpp.o"
+}
+]

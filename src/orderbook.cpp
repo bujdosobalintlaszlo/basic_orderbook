@@ -9,7 +9,6 @@ OrderBook::OrderBook() = default;
 
 const std::map<uint64_t,Orders,std::greater<uint64_t>>& OrderBook::getBids() const noexcept{return bids_;}
 const std::map<uint64_t,Orders>& OrderBook::getAsks() const noexcept{return asks_;}
-
 void OrderBook::displayBids() const {
 	 std::cout << "___ BIDS DEBUG ___" << '\n';
     for (const auto& [price, order_list] : bids_) {
