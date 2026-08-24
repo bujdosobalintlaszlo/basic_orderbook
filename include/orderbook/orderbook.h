@@ -7,9 +7,13 @@
 #include "trade.h"
 #include "market.h"
 #include <unordered_map>
+#include "types.h"
+/*
+ * moved to types.h -- DONT DELETE YET --
 using Orders = std::list<std::unique_ptr<Order>>;
 using OrderPtr = std::unique_ptr<Order>;
 using Price = uint64_t;
+*/
 class OrderBook{
 private:
 	 struct InsertInfo{
@@ -43,8 +47,5 @@ public:
 	 bool cancel(BookType& book,std::unordered_map<uint64_t,InsertInfo>::iterator order_it);
 	 template<typename Compare>
 	 Trades matchLimitOrder(OrderPtr &order, std::map<Price,Orders, Compare> &book); 
-	 template<typename BookType>
-	 Trades matchMarketOrder(OrderPtr &order,BookType &book);
-
 };
 

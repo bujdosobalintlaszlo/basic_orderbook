@@ -1,6 +1,7 @@
 #pragma once
 #include "side.h"
 #include "ordertype.h"
+#include "optional"
 #include<iostream>
 #include<memory>
 class Order{
@@ -8,7 +9,7 @@ private:
 	 uint64_t id_;
 	 OrderType orderType_;
 	 Side side_;
-	 int64_t price_;
+	 uint64_t price_;
 	 uint64_t initial_quantity_;
 	 uint64_t remaining_quantity_;
 	 double convertToDecimal(uint64_t price) const;
@@ -22,7 +23,7 @@ public:
 	 uint64_t getPrice()const;
 	 uint64_t getInitialQuantity()const;
 	 uint64_t getRemainingQuantity()const;
-	 
+	 bool hasPrice() const;
 	 //setters
 	 void fill(uint64_t quantity);
 	 uint64_t filledQuantity() const;
@@ -31,4 +32,5 @@ public:
 	 double getFufillmentOfOrder() const;
 	 void printOrder() const;
 	 bool isFilled() const; 
+
 };
