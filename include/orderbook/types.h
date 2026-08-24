@@ -11,3 +11,4 @@ using Quantity = std::uint64_t;
 using OrderId = std::uint64_t;
 using Orders = std::list<std::unique_ptr<Order>>;
 using OrderPtr = std::unique_ptr<Order>;
+using OrderDate = std::uint64_t;

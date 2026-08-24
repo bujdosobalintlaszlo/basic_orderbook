@@ -1,9 +1,7 @@
 #pragma once
 #include<map>
-#include<memory>
 #include<list>
 #include<unordered_map>
-#include "order.h"
 #include "trade.h"
 #include "market.h"
 #include <unordered_map>
@@ -36,7 +34,7 @@ public:
 	 void displayBids() const;
 	 void displayAsks() const;
 	 template <typename Compare>
-	 Trades matchMarketOrder(Market &order,std::map<Price,Orders, Compare> &book);
+	 Trades matchMarketOrder(OrderPtr &order,std::map<Price,Orders, Compare> &book);
 	 template<typename Comparator>
 	 bool insertIntoBook(OrderPtr &order,std::map<Price,Orders,Comparator> &book);
 	 Trade createTradeData(const OrderPtr &bidOrder,const OrderPtr &askOrder);
@@ -46,6 +44,6 @@ public:
 	 template<typename BookType>
 	 bool cancel(BookType& book,std::unordered_map<uint64_t,InsertInfo>::iterator order_it);
 	 template<typename Compare>
-	 Trades matchLimitOrder(OrderPtr &order, std::map<Price,Orders, Compare> &book); 
+	 Trades matchLimitOrder(OrderPtr &order, std::map<Price,Orders, Compare> &book);
 };
 

@@ -1,28 +1,27 @@
 #pragma once
 #include "side.h"
 #include "ordertype.h"
-#include "optional"
-#include<iostream>
-#include<memory>
+#include "constants.h"
+#include "types.h"
 class Order{
 private:
-	 uint64_t id_;
+	 OrderId id_;
 	 OrderType orderType_;
 	 Side side_;
-	 uint64_t price_;
-	 uint64_t initial_quantity_;
-	 uint64_t remaining_quantity_;
+	 Price price_;
+	 Quantity initial_quantity_;
+	 Quantity remaining_quantity_;
 	 double convertToDecimal(uint64_t price) const;
 public:
-	 Order(uint64_t id,OrderType orderType,Side side,uint64_t price,uint64_t quantity);
+	 Order(OrderId id,OrderType orderType,Side side,Price price,Quantity quantity);
 	 
 	 //getters
 	 uint64_t getId() const;
 	 OrderType getOrderType() const;
 	 Side getSide()const;
-	 uint64_t getPrice()const;
-	 uint64_t getInitialQuantity()const;
-	 uint64_t getRemainingQuantity()const;
+	 Price getPrice()const;
+	 Quantity getInitialQuantity()const;
+	 Quantity getRemainingQuantity()const;
 	 bool hasPrice() const;
 	 //setters
 	 void fill(uint64_t quantity);
