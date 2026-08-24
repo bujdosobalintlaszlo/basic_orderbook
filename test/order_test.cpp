@@ -73,6 +73,7 @@ TEST(OrderTestSuite,InvalidOrderFill){
 		  FAIL() << "Didn't result in std::invalid_argument!";
 	 }
 }
+
 int main(int argc,char** argv){
 	 testing::InitGoogleTest(&argc,argv);
 	 return RUN_ALL_TESTS();

@@ -1,6 +1,5 @@
 #include<gtest/gtest.h>
 #include "orderbook/orderbook.h"
-#include<memory>
 /*
 
 */
@@ -52,11 +51,12 @@ TEST_F(OrderBookTest,LimitOrderTest){
 }
 
 TEST_F(OrderBookTest,LimitOrderFail){
-
+	 Order o(1,OrderType::PostOnly,Side::SELL,6700800,67);
+	 Order o2(2,OrderType::Limit,Side::BUY,670000,67);
 }
 
 TEST_F(OrderBookTest,MarketOrderFill){
-
+	 
 }
 
 TEST_F(OrderBookTest,MarketOrderCantMatch){

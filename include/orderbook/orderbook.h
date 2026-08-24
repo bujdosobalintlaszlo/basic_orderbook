@@ -5,6 +5,7 @@
 #include<unordered_map>
 #include "order.h"
 #include "trade.h"
+#include "market.h"
 #include <unordered_map>
 using Orders = std::list<std::unique_ptr<Order>>;
 using OrderPtr = std::unique_ptr<Order>;
@@ -31,7 +32,7 @@ public:
 	 void displayBids() const;
 	 void displayAsks() const;
 	 template <typename Compare>
-	 Trades matchMarketOrder(OrderPtr &order, std::map<Price,Orders, Compare> &book);
+	 Trades matchMarketOrder(Market &order,std::map<Price,Orders, Compare> &book);
 	 template<typename Comparator>
 	 bool insertIntoBook(OrderPtr &order,std::map<Price,Orders,Comparator> &book);
 	 Trade createTradeData(const OrderPtr &bidOrder,const OrderPtr &askOrder);

@@ -4,6 +4,7 @@
 #include<memory>
 #include "orderbook/ordertype.h"
 #include "orderbook/trade_info.h"
+//#include "orderbook/market.h"
 
 OrderBook::OrderBook() = default;
 
@@ -27,18 +28,18 @@ void OrderBook::displayAsks() const {
     }
 }
 template<typename Compare>
-Trades OrderBook::matchMarketOrder(OrderPtr &order,std::map<Price,Orders, Compare> &book){
+Trades OrderBook::matchMarketOrder(Market &order,std::map<Price,Orders, Compare> &book){
 	 Trades trades{};
 	 auto it = book.begin();
-	 while(it!=book.end() && order->getRemainingQuantity() >0){
+	 while(it!=book.end() && order.remaining_quantity_ >0){
 		  auto &orders = it->second;
 		  auto orders_it = orders.begin();
-		  while(orders_it != orders.end() && order->getRemainingQuantity() >0){
+		  while(orders_it != orders.end() && order.remaining_quantity_ >0){
 				auto &curr_order = *orders_it;
-				uint64_t fill_qty = std::min(order->getRemainingQuantity(), curr_order->getRemainingQuantity());
+				uint64_t fill_qty = std::min(order.remaining_quantity_, curr_order->getRemainingQuantity());
 				if(fill_qty > 0){
 				uint64_t fill_price = curr_order->getPrice();
-					 order->fill(fill_qty);
+					 order.fill(fill_qty);
 					 curr_order->fill(fill_qty);
 					 trades.push_back(createTradeData(order, curr_order));
 				}
@@ -199,6 +200,8 @@ bool OrderBook::isInBook(const OrderPtr &order) const {
 	 }
 	 return false;
 }
+
+
 Trades OrderBook::placeOrder(OrderPtr order){
 	 if(!order) throw std::invalid_argument("Invalid order was submited!");
 	 switch(order->getOrderType()){
