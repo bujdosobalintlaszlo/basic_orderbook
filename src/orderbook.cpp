@@ -267,9 +267,9 @@ Trades OrderBook::placeOrder(OrderPtr order){
 				break;
 		  case OrderType::Limit:
 				if(order->getSide() == Side::BUY){
-					 return matchLimitOrder(order,bids_);
+					 return matchLimitOrder(order,asks_);
 				}else{
-					return matchLimitOrder(order,asks_);
+					return matchLimitOrder(order,bids_);
 				}
 				break;
 	 }

@@ -12,3 +12,5 @@ std::ostream& operator<<(std::ostream& os, const Trade &trade) {
               << ", Quantity: " << trade.getAskTrade().quantity_ << "|\n";
 }
 
+
+

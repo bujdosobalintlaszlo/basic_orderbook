@@ -2,8 +2,10 @@
 #include <iostream>
 #include <stdexcept>
 #include <string>
+#include "orderbook/types.h"
+
 //IMPLEMENT LIMIT
-Order::Order(uint64_t id, OrderType orderType, Side side, uint64_t price, uint64_t quantity) 
+Order::Order(OrderId id, OrderType orderType, Side side, Price price, Quantity quantity) 
     : id_(id), orderType_(orderType), side_(side), price_(price), 
       initial_quantity_(quantity), remaining_quantity_(quantity) {
       
@@ -17,12 +19,12 @@ Order::Order(uint64_t id, OrderType orderType, Side side, uint64_t price, uint64
 }
 
 // Getters
-uint64_t Order::getId() const { return id_; }
+OrderId Order::getId() const { return id_; }
 OrderType Order::getOrderType() const { return orderType_; }
 Side Order::getSide() const { return side_; }
-uint64_t Order::getPrice() const { return price_; }
-uint64_t Order::getInitialQuantity() const { return initial_quantity_; }
-uint64_t Order::getRemainingQuantity() const { return remaining_quantity_; }
+Price Order::getPrice() const { return price_; }
+Quantity Order::getInitialQuantity() const { return initial_quantity_; }
+Quantity Order::getRemainingQuantity() const { return remaining_quantity_; }
 
 // Modifiers & Calculations
 void Order::fill(uint64_t quantity) {
@@ -32,7 +34,7 @@ void Order::fill(uint64_t quantity) {
     remaining_quantity_ -= quantity;
 }
 
-uint64_t Order::filledQuantity() const {
+Quantity Order::filledQuantity() const {
     return initial_quantity_ - remaining_quantity_;
 }
 

@@ -32,6 +32,6 @@ add_executable(unit_tests
 )
 
 target_include_directories(unit_tests PRIVATE include)
-target_link_libraries(unit_tests PRIVATE gtest_main)
+target_link_libraries(unit_tests PRIVATE gtest_main PRIVATE gmock)
 
 add_test(NAME OrderBookTests COMMAND unit_tests)
