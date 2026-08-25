@@ -12,10 +12,16 @@ Order::Order(OrderId id, OrderType orderType, Side side, Price price, Quantity q
     if (quantity <= 0) {
         throw std::invalid_argument("Order quantity cannot be zero! Order ID: " + std::to_string(id));
     }
-    if (price <= 0) {
-        throw std::invalid_argument("Order price must be positive! Order ID: " 
-            + std::to_string(id) + " with PRICE: " + std::to_string(price));
-    }
+	 if(orderType == OrderType::Market){
+		  if (price != Constants::InvalidPrice) {
+            throw std::invalid_argument("Market order must not have a price! Order ID: " + std::to_string(id));
+        }
+	 }else{
+		   if (price == Constants::InvalidPrice || price <= 0) {
+            throw std::invalid_argument("Order price must be positive! Order ID: "
+                + std::to_string(id) + " with PRICE: " + std::to_string(price));
+        }
+	 }
 }
 
 Order::Order(OrderId id, Side side, Quantity quantity) : Order(id,OrderType::Market,side,Constants::InvalidPrice,quantity){}
