@@ -71,7 +71,6 @@ TEST_F(OrderBookTest, LimitOrderPartialFill){
     Order o2(2, OrderType::Limit, Side::BUY, 6700800, 40);
     ob.placeOrder(std::make_unique<Order>(o));
     Trades trade = ob.placeOrder(std::make_unique<Order>(o2));
-	 std::cout << "BID TRADE: " << trade[0].getBidTrade().orderId_ << " initial quantity: " << trade[0].getBidTrade().initialQuantity_ << " quanity " << trade[0].getBidTrade().quantity_ << " price "<<trade[0].getBidTrade().price_ << " side "<< trade[0].getBidTrade().side_<< '\n' << "ASK TRADE: " << trade[0].getAskTrade().orderId_ << " initial quantity: " << trade[0].getAskTrade().initialQuantity_ << " quanity " << trade[0].getAskTrade().quantity_ << " price "<<trade[0].getAskTrade().price_ << " side "<< trade[0].getAskTrade().side_ << '\n';
     EXPECT_THAT(trade, ElementsAre(
         AllOf(
             Property(&Trade::getAskTrade, AllOf(
@@ -85,8 +84,11 @@ TEST_F(OrderBookTest, LimitOrderPartialFill){
         )
     ));}
 
-TEST_F(OrderBookTest,MarketOrderCantMatch){
-	 
+TEST_F(OrderBookTest,MarketOrderMatch){
+    Order o(1, OrderType::PostOnly, Side::SELL, 67008000000, 67);
+    Order o2(2,Side::BUY, 40);
+    ob.placeOrder(std::make_unique<Order>(o));
+    Trades trade = ob.placeOrder(std::make_unique<Order>(o2));
 }
 
 TEST_F(OrderBookTest,FillAndKillOrderMatch){

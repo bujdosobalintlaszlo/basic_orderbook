@@ -1,7 +1,6 @@
 #pragma once
 #include "side.h"
 #include "ordertype.h"
-#include "constants.h"
 #include "types.h"
 class Order{
 private:
@@ -14,7 +13,7 @@ private:
 	 double convertToDecimal(uint64_t price) const;
 public:
 	 Order(OrderId id,OrderType orderType,Side side,Price price,Quantity quantity);
-	 
+	 Order(OrderId id, Side side, Quantity quantity);
 	 //getters
 	 uint64_t getId() const;
 	 OrderType getOrderType() const;

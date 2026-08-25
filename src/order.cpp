@@ -3,7 +3,7 @@
 #include <stdexcept>
 #include <string>
 #include "orderbook/types.h"
-
+#include "orderbook/constants.h"
 //IMPLEMENT LIMIT
 Order::Order(OrderId id, OrderType orderType, Side side, Price price, Quantity quantity) 
     : id_(id), orderType_(orderType), side_(side), price_(price), 
@@ -17,6 +17,8 @@ Order::Order(OrderId id, OrderType orderType, Side side, Price price, Quantity q
             + std::to_string(id) + " with PRICE: " + std::to_string(price));
     }
 }
+
+Order::Order(OrderId id, Side side, Quantity quantity) : Order(id,OrderType::Market,side,Constants::InvalidPrice,quantity){}
 
 // Getters
 OrderId Order::getId() const { return id_; }
