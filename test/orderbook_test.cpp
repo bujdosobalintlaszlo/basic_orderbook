@@ -7,12 +7,20 @@
 using ::testing::AllOf;
 using ::testing::Field;
 using ::testing::ElementsAre;
-/*
 
-*/
 class OrderBookTest : public ::testing::Test{
 protected:
 	 OrderBook ob;
+	 //___ HELPERS FOR TESTING ___
+	 bool checkTradeVals(Trades expected, Trades output) const{
+		  if(expected.size() != output.size()) return false;
+		  for(size_t i{0};i<expected.size();++i){
+				if(expected[i].getBidTrade() != output[i].getBidTrade() || expected[i].getAskTrade() != output[i].getAskTrade()){
+					 return false;
+				}
+		  }
+		  return true;
+	 }
 };
 TEST_F(OrderBookTest,CreatingBookWithOrders){
 	 Order o(1,OrderType::PostOnly,Side::BUY,6700000,67);
@@ -83,6 +91,7 @@ TEST_F(OrderBookTest, LimitOrderPartialFill){
             ))
         )
     ));
+
 }
 
 TEST_F(OrderBookTest,MarketOrderMatch){
@@ -90,7 +99,6 @@ TEST_F(OrderBookTest,MarketOrderMatch){
     Order o2(2,Side::BUY, 40);
     ob.placeOrder(std::make_unique<Order>(o));
     Trades trade = ob.placeOrder(std::make_unique<Order>(o2));
-	 std::cout << "BID TRADE: " << trade[0].getBidTrade().orderId_ << " initial quantity: " << trade[0].getBidTrade().initialQuantity_ << " quanity " << trade[0].getBidTrade().quantity_ << " price "<<trade[0].getBidTrade().price_ << " side "<< trade[0].getBidTrade().side_<< '\n' << "ASK TRADE: " << trade[0].getAskTrade().orderId_ << " initial quantity: " << trade[0].getAskTrade().initialQuantity_ << " quanity " << trade[0].getAskTrade().quantity_ << " price "<<trade[0].getAskTrade().price_ << " side "<< trade[0].getAskTrade().side_ << '\n';
 	 EXPECT_THAT(trade, ElementsAre(
         AllOf(
             Property(&Trade::getAskTrade, AllOf(
@@ -103,26 +111,157 @@ TEST_F(OrderBookTest,MarketOrderMatch){
             ))
         )
     ));
+	 EXPECT_EQ(ob.getAsks().size(),1);
+	 EXPECT_EQ(ob.getBids().size(),0);
+}
+
+TEST_F(OrderBookTest,MarketOrderPartialFill){
+    Order o(1, OrderType::PostOnly, Side::SELL, 67008000000, 7);
+    Order o2(2,Side::BUY, 40);
+    ob.placeOrder(std::make_unique<Order>(o));
+    Trades trade = ob.placeOrder(std::make_unique<Order>(o2));
+	 EXPECT_THAT(trade, ElementsAre(
+        AllOf(
+            Property(&Trade::getAskTrade, AllOf(
+                Field(&TradeInfo::orderId_, 1),
+                Field(&TradeInfo::quantity_,0)
+            )),
+            Property(&Trade::getBidTrade, AllOf(
+                Field(&TradeInfo::orderId_, 2),
+                Field(&TradeInfo::quantity_,33)
+            ))
+        )
+    ));
+	 EXPECT_EQ(ob.getAsks().size(),0);
+	 EXPECT_EQ(ob.getBids().size(),0);
+	 
+}
+
+TEST_F(OrderBookTest,MarketOrderCantFill){
+    //Order o(1, OrderType::PostOnly, Side::SELL, 67008000000, 7);
+    Order o2(2,Side::BUY, 40);
+    //ob.placeOrder(std::make_unique<Order>(o));
+    Trades trade = ob.placeOrder(std::make_unique<Order>(o2));
+	 ASSERT_EQ(trade.size(),0);
+	 EXPECT_EQ(ob.getAsks().size(),0);
+	 EXPECT_EQ(ob.getBids().size(),0);
+	 
 }
 
 TEST_F(OrderBookTest,FillAndKillOrderMatch){
-
+	 Order o(1, OrderType::PostOnly, Side::SELL, 67008000000, 7);
+    Order o2(2, OrderType::FillAndKill, Side::BUY, 67008000000, 7);
+    ob.placeOrder(std::make_unique<Order>(o));
+    Trades trade = ob.placeOrder(std::make_unique<Order>(o2));
+	 EXPECT_THAT(trade, ElementsAre(
+        AllOf(
+            Property(&Trade::getAskTrade, AllOf(
+                Field(&TradeInfo::orderId_, 1),
+                Field(&TradeInfo::quantity_,0)
+            )),
+            Property(&Trade::getBidTrade, AllOf(
+                Field(&TradeInfo::orderId_, 2),
+                Field(&TradeInfo::quantity_,0)
+            ))
+        )
+    ));
+	 EXPECT_EQ(ob.getAsks().size(),0);
+	 EXPECT_EQ(ob.getBids().size(),0);
 }
 
 TEST_F(OrderBookTest,FillAndKillCantMatch){
-
+    Order o2(2, OrderType::FillAndKill, Side::BUY, 67008000000, 7);
+    Trades trade = ob.placeOrder(std::make_unique<Order>(o2));
+	 ASSERT_EQ(trade.size(),0); 
+	 EXPECT_EQ(ob.getAsks().size(),0);
+	 EXPECT_EQ(ob.getBids().size(),0);
 }
 
 TEST_F(OrderBookTest,FillAndKillPartialFill){
-
+	 Order o(1, OrderType::PostOnly, Side::SELL, 67008000000, 6);
+    Order o2(2, OrderType::FillAndKill, Side::BUY, 67008000000, 7);
+    ob.placeOrder(std::make_unique<Order>(o));
+    Trades trade = ob.placeOrder(std::make_unique<Order>(o2));
+	 EXPECT_THAT(trade, ElementsAre(
+        AllOf(
+            Property(&Trade::getAskTrade, AllOf(
+                Field(&TradeInfo::orderId_, 1),
+                Field(&TradeInfo::quantity_,0)
+            )),
+            Property(&Trade::getBidTrade, AllOf(
+                Field(&TradeInfo::orderId_, 2),
+                Field(&TradeInfo::quantity_,1)
+            ))
+        )
+    ));
+	 EXPECT_EQ(ob.getAsks().size(),0);
+	 EXPECT_EQ(ob.getBids().size(),0);
 }
 
 TEST_F(OrderBookTest,FillOrKillCanMatch){
-
+	 Order o(1, OrderType::PostOnly, Side::SELL, 67008000000, 6);
+    Order o2(2, OrderType::FillOrKill, Side::BUY, 67008000000, 6);
+    ob.placeOrder(std::make_unique<Order>(o));
+    Trades trade = ob.placeOrder(std::make_unique<Order>(o2));
+	 EXPECT_THAT(trade, ElementsAre(
+        AllOf(
+            Property(&Trade::getAskTrade, AllOf(
+                Field(&TradeInfo::orderId_, 1),
+                Field(&TradeInfo::quantity_,0)
+            )),
+            Property(&Trade::getBidTrade, AllOf(
+                Field(&TradeInfo::orderId_, 2),
+                Field(&TradeInfo::quantity_,0)
+            ))
+        )
+    ));
+	 EXPECT_EQ(ob.getAsks().size(),0);
+	 EXPECT_EQ(ob.getBids().size(),0);
 }
 
-TEST_F(OrderBookTest,FillOrKillCantMatch){
+TEST_F(OrderBookTest, FillOrKillCanMatchMultipleOrder) {
+    Order o(1, OrderType::PostOnly, Side::SELL, 67008000000, 3);
+    Order o3(3, OrderType::PostOnly, Side::SELL, 67008000000, 3);
+    Order o2(2, OrderType::FillOrKill, Side::BUY, 67008000000, 6);
 
+    ob.placeOrder(std::make_unique<Order>(o));
+    ob.placeOrder(std::make_unique<Order>(o3));
+    Trades trade = ob.placeOrder(std::make_unique<Order>(o2));
+	 std::cout << "trade size: " << trade.size() << '\n'; 
+    EXPECT_THAT(trade, ElementsAre(
+        AllOf(
+            Property(&Trade::getAskTrade, AllOf(
+                Field(&TradeInfo::orderId_, 1),
+                Field(&TradeInfo::quantity_, 0)
+            )),
+            Property(&Trade::getBidTrade, AllOf(
+                Field(&TradeInfo::orderId_, 2),
+                Field(&TradeInfo::quantity_, 3)
+            ))
+        ),
+        AllOf(
+            Property(&Trade::getAskTrade, AllOf(
+                Field(&TradeInfo::orderId_, 3),
+                Field(&TradeInfo::quantity_, 0)
+            )),
+            Property(&Trade::getBidTrade, AllOf(
+                Field(&TradeInfo::orderId_, 2),
+                Field(&TradeInfo::quantity_, 0)
+            ))
+        )
+    ));
+
+    EXPECT_EQ(ob.getAsks().size(), 0);
+    EXPECT_EQ(ob.getBids().size(), 0);
+}
+TEST_F(OrderBookTest,FillOrKillCantMatch){
+	 Order o(1, OrderType::PostOnly, Side::SELL, 67008000000, 3);
+    Order o2(2, OrderType::FillOrKill, Side::BUY, 67008000000, 6);
+    ob.placeOrder(std::make_unique<Order>(o));
+    Trades trade = ob.placeOrder(std::make_unique<Order>(o2));
+	 ASSERT_EQ(trade.size(),0); 
+	 EXPECT_EQ(ob.getAsks().size(),1);
+	 EXPECT_EQ(ob.getBids().size(),0);
 }
 
 TEST_F(OrderBookTest,GoodTillCancelInsert){

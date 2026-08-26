@@ -155,6 +155,10 @@ bool OrderBook::cancel(BookType& book,std::unordered_map<uint64_t,InsertInfo>::i
 ///FONTOS FOK tobb orderbol is fillelheto csak a vegere nem maradhta
 template<typename Comparator>
 Trades OrderBook::FOK(OrderPtr &order,std::map<Price,Orders,Comparator> &book){
+   std::cout << " IN FOK" << '\n';
+	if(!canMatch(order,book)){
+		  return {};
+	}
 	Trades trades{};
 	auto it = book.begin();
 	while(it != book.end()){
@@ -162,7 +166,7 @@ Trades OrderBook::FOK(OrderPtr &order,std::map<Price,Orders,Comparator> &book){
 		  auto orders_it = orders.begin();
 		  while(orders_it != orders.end()){
 				auto &current_order = *orders_it;
-				if(current_order->getInitialQuantity() == order->getInitialQuantity()){
+				if(order->getRemainingQuantity() > 0){
 					 uint64_t fill_qty{0};
 					 if(order->getSide() == Side::BUY && order->getPrice() >= current_order->getPrice()){
 						  fill_qty = std::min(order->getRemainingQuantity(), current_order->getRemainingQuantity());
@@ -170,27 +174,32 @@ Trades OrderBook::FOK(OrderPtr &order,std::map<Price,Orders,Comparator> &book){
 					 else if(order->getSide() == Side::SELL && order->getPrice() <= current_order->getPrice()){
 						  fill_qty = std::min(order->getRemainingQuantity(), current_order->getRemainingQuantity());
 					 }
+					 std::cout << "Fill qty: " <<fill_qty << '\n';
 					 if(fill_qty > 0){
+						  std::cout << "filled with " << fill_qty << " quantity" <<'\n';
 						  uint64_t fill_price = current_order->getPrice();
 						  order->fill(fill_qty);
 						  current_order->fill(fill_qty);
 						  trades.push_back(createTradeData(order, current_order));
 					 }
 				}
+				//itt a hiba utolagos torles kene mert kitorli ha partial fillel
 				//if the current order from the book got fully filled, then we remove it from the list, storing trades at the given price level
 				if (current_order->getRemainingQuantity() == 0) {
+					 std::cout << "ORDER DELETED FROM BOOK" << '\n';
 					 orders_it = orders.erase(orders_it);
 				} else {
 					 ++orders_it;
 				}
 		  }
 		  if (orders.empty()) {
+				std::cout << "LEVEL DELETED FROM BOOK" << '\n';
 				it = book.erase(it);
 		  } else {
 				++it;
 		  }
 	}
-	return trades;
+	 return trades;
 }
 bool OrderBook::isInBook(const OrderPtr &order) const {
     if (!order) return false;
@@ -199,6 +208,29 @@ bool OrderBook::isInBook(const OrderPtr &order) const {
 		  return true;
 	 }
 	 return false;
+}
+
+template<typename Comparator>
+bool OrderBook::canMatch(OrderPtr &order, std::map<Price,Orders,Comparator> &book){
+    Quantity copy = order->getRemainingQuantity();
+    auto it = book.begin();
+    while(it != book.end()){
+        Price levelPrice = it->first;
+        bool priceOk = (order->getSide() == Side::BUY  && order->getPrice() >= levelPrice) || (order->getSide() == Side::SELL && order->getPrice() <= levelPrice);
+        if(!priceOk){
+            break;
+		  }
+
+        auto &orders = it->second;
+        for(auto &current_order : orders){
+            copy -= std::min(copy, current_order->getRemainingQuantity());
+            if(copy == 0){
+                return true;
+            }
+        }
+        ++it;
+    }
+    return false;
 }
 
 
@@ -250,10 +282,10 @@ Trades OrderBook::placeOrder(OrderPtr order){
 				break;
 		  case OrderType::FillAndKill:
 				if(order->getSide() == Side::BUY){
-					 return matchMarketOrder(order,asks_);
+					 return matchLimitOrder(order,asks_);
 				}
 				else{
-					 return matchMarketOrder(order,bids_);
+					 return matchLimitOrder(order,bids_);
 				}
 				break;
 

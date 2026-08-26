@@ -45,5 +45,7 @@ public:
 	 bool cancel(BookType& book,std::unordered_map<uint64_t,InsertInfo>::iterator order_it);
 	 template<typename Compare>
 	 Trades matchLimitOrder(OrderPtr &order, std::map<Price,Orders, Compare> &book);
+	 template<typename Comparator>
+	 bool canMatch(OrderPtr &order,std::map<Price,Orders,Comparator> &book);
 };
 
