@@ -48,6 +48,13 @@ TEST_F(OrderBookTest,CancelValidOrder){
 	 EXPECT_EQ(ob.getBids().size(),0);
 }
 
+TEST_F(OrderBookTest, CancelOnEmptyBook){
+    bool succesfulDel = ob.cancelOrder(1);
+    ASSERT_FALSE(succesfulDel);
+    EXPECT_EQ(ob.getBids().size(), 0);
+    EXPECT_EQ(ob.getAsks().size(), 0);
+}
+
 TEST_F(OrderBookTest,CancelInvalidOrder){
 	 Order o(1,OrderType::PostOnly,Side::BUY,6700000,67);
 	 //no need to store trades
@@ -264,14 +271,52 @@ TEST_F(OrderBookTest,FillOrKillCantMatch){
 	 EXPECT_EQ(ob.getBids().size(),0);
 }
 
-TEST_F(OrderBookTest,GoodTillCancelInsert){
-
+TEST_F(OrderBookTest,GoodTillCancelInsertFilledBeforeInBook){
+	 Order o(1, OrderType::PostOnly, Side::SELL, 67008000000, 6);
+    Order o2(2, OrderType::FillOrKill, Side::BUY, 67008000000, 6);
+    ob.placeOrder(std::make_unique<Order>(o));
+    Trades trade = ob.placeOrder(std::make_unique<Order>(o2));
+	 EXPECT_THAT(trade, ElementsAre(
+        AllOf(
+            Property(&Trade::getAskTrade, AllOf(
+                Field(&TradeInfo::orderId_, 1),
+                Field(&TradeInfo::quantity_,0)
+            )),
+            Property(&Trade::getBidTrade, AllOf(
+                Field(&TradeInfo::orderId_, 2),
+                Field(&TradeInfo::quantity_,0)
+            ))
+        )
+    ));
+	 EXPECT_EQ(ob.getAsks().size(),0);
+	 EXPECT_EQ(ob.getBids().size(),0);
 }
 
 TEST_F(OrderBookTest,GoodTillCancelPartialFill){
 
 }
 
-TEST_F(OrderBookTest,GoodTillCancellFullyFilled){
+TEST_F(OrderBookTest,GoodTillCancelFillWithMultipleOrder){
+
+}
+
+TEST_F(OrderBookTest,GoodTillCancelCantFill){
+
+}
+
+
+TEST_F(OrderBookTest,WorkFlow1){
+
+}
+
+TEST_F(OrderBookTest,WorkFlow2){
+
+}
+
+TEST_F(OrderBookTest,WorkFlow3){
+
+}
+
+TEST_F(OrderBookTest,WorkFlow4){
 
 }

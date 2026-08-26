@@ -186,14 +186,14 @@ Trades OrderBook::FOK(OrderPtr &order,std::map<Price,Orders,Comparator> &book){
 				//itt a hiba utolagos torles kene mert kitorli ha partial fillel
 				//if the current order from the book got fully filled, then we remove it from the list, storing trades at the given price level
 				if (current_order->getRemainingQuantity() == 0) {
-					 std::cout << "ORDER DELETED FROM BOOK" << '\n';
+					 //std::cout << "ORDER DELETED FROM BOOK" << '\n';
 					 orders_it = orders.erase(orders_it);
 				} else {
 					 ++orders_it;
 				}
 		  }
 		  if (orders.empty()) {
-				std::cout << "LEVEL DELETED FROM BOOK" << '\n';
+				//std::cout << "LEVEL DELETED FROM BOOK" << '\n';
 				it = book.erase(it);
 		  } else {
 				++it;
@@ -278,7 +278,6 @@ Trades OrderBook::placeOrder(OrderPtr order){
 				else{
 					 return matchMarketOrder(order,bids_);
 				}
-				//std::cout << "A MARKET Order has been filled with Order ID: " << order->getId() << ", with " << order->getRemainingQuantity() << " remaining unfilled." << '\n';
 				break;
 		  case OrderType::FillAndKill:
 				if(order->getSide() == Side::BUY){
