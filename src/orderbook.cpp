@@ -248,7 +248,7 @@ Trades OrderBook::placeOrder(OrderPtr order){
 					 }
 					 return t;
 				}else{
-					 Trades t = matchMarketOrder(order,bids_);
+					 Trades t = matchLimitOrder(order,bids_);
 					 if(order->getRemainingQuantity() > 0){
 						  insertIntoBook(order,asks_);
 					 }
