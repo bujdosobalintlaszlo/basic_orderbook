@@ -242,17 +242,17 @@ Trades OrderBook::placeOrder(OrderPtr order){
 				break;		
 		  case OrderType::GoodTillCancel:
 				if(order->getSide() == Side::BUY){
-					 matchMarketOrder(order,asks_);
+					 Trades t = matchLimitOrder(order,asks_);
 					 if(order->getRemainingQuantity() >0){
 						  insertIntoBook(order,bids_);
 					 }
-					 return Trades{};
+					 return t;
 				}else{
-					 matchMarketOrder(order,bids_);
+					 Trades t = matchMarketOrder(order,bids_);
 					 if(order->getRemainingQuantity() > 0){
 						  insertIntoBook(order,asks_);
 					 }
-					 return Trades{};
+					 return t;
 				}
 				break;
 		  //done 
