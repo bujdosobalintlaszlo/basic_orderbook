@@ -23,7 +23,7 @@ private:
 	 };
 	 std::map<uint64_t,Orders,std::greater<uint64_t>> bids_;
 	 std::map<uint64_t,Orders> asks_;
-	 std::unordered_map<uint64_t,InsertInfo> orders_;
+	 std::unordered_map<OrderId,InsertInfo> orders_;
 
 public:
 	 const std::map<uint64_t,Orders,std::greater<uint64_t>>& getBids() const noexcept;
@@ -38,11 +38,11 @@ public:
 	 template<typename Comparator>
 	 bool insertIntoBook(OrderPtr &order,std::map<Price,Orders,Comparator> &book);
 	 Trade createTradeData(const OrderPtr &bidOrder,const OrderPtr &askOrder);
-	 bool cancelOrder(uint64_t id);
+	 bool cancelOrder(OrderId id);
 	 template<typename Comparator>
 	 Trades FOK(OrderPtr &order,std::map<Price,Orders,Comparator> &book);
 	 template<typename BookType>
-	 bool cancel(BookType& book,std::unordered_map<uint64_t,InsertInfo>::iterator order_it);
+	 bool cancel(BookType& book,std::unordered_map<OrderId,InsertInfo>::iterator order_it);
 	 template<typename Compare>
 	 Trades matchLimitOrder(OrderPtr &order, std::map<Price,Orders, Compare> &book);
 	 template<typename Comparator>

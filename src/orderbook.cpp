@@ -113,9 +113,9 @@ Trade OrderBook::createTradeData(const OrderPtr &bidOrder,const OrderPtr &askOrd
 template<typename Comparator>
 bool OrderBook::insertIntoBook(OrderPtr &order,std::map<Price,Orders,Comparator> &book){
 	 if(!order) return false;
-	 const uint64_t price = order->getPrice();
+	 const Price price = order->getPrice();
 	 const Side side = order->getSide();
-	 const uint64_t id = order->getId();
+	 const OrderId id = order->getId();
 	 auto [it, inserted] = book.try_emplace(price);
 	 it->second.push_back(std::move(order));
 	 auto order_it = std::prev(it->second.end());
@@ -125,7 +125,7 @@ bool OrderBook::insertIntoBook(OrderPtr &order,std::map<Price,Orders,Comparator>
 	 return true;
 }
 
-bool OrderBook::cancelOrder(uint64_t id){
+bool OrderBook::cancelOrder(OrderId id){
 	 auto order_it = orders_.find(id);
 	 if(order_it != orders_.end()){
 		  if(order_it->second.side_ == Side::BUY){
@@ -137,7 +137,7 @@ bool OrderBook::cancelOrder(uint64_t id){
 		  return false;
 } 
 template<typename BookType>
-bool OrderBook::cancel(BookType& book,std::unordered_map<uint64_t,InsertInfo>::iterator order_it){
+bool OrderBook::cancel(BookType& book,std::unordered_map<OrderId,InsertInfo>::iterator order_it){
 	 if(order_it != orders_.end()){
 		  auto level_it = book.find(order_it->second.price_);
 		  if(level_it != book.end()){

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.28)
+cmake_minimum_required(VERSION 3.5)
 project(OrderBook)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -24,9 +24,11 @@ target_link_libraries(OrderBook
 enable_testing()
 add_subdirectory(third_party/googletest)
 
-add_subdirectory(external/rapidjson)
-target_include_directories(OrderBook PRIVATE external/rapidjson/include)
+set(RAPIDJSON_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(RAPIDJSON_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(RAPIDJSON_BUILD_DOC OFF CACHE BOOL "" FORCE)
 
+add_subdirectory(external/rapidjson)
 add_executable(unit_tests
     test/orderbook_test.cpp
     test/order_test.cpp

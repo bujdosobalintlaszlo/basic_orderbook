@@ -15,7 +15,7 @@ public:
 	 Order(OrderId id,OrderType orderType,Side side,Price price,Quantity quantity);
 	 Order(OrderId id, Side side, Quantity quantity);
 	 //getters
-	 uint64_t getId() const;
+	 OrderId getId() const;
 	 OrderType getOrderType() const;
 	 Side getSide()const;
 	 Price getPrice()const;
@@ -24,7 +24,7 @@ public:
 	 bool hasPrice() const;
 	 //setters
 	 void fill(uint64_t quantity);
-	 uint64_t filledQuantity() const;
+	 Quantity filledQuantity() const;
 
 	 //only for display
 	 double getFufillmentOfOrder() const;

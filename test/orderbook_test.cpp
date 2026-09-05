@@ -23,15 +23,15 @@ protected:
 	 }
 };
 TEST_F(OrderBookTest,CreatingBookWithOrders){
-	 Order o(1,OrderType::PostOnly,Side::BUY,6700000,67);
+	 Order o("e2a85d9f-07a5-4f94-8d5f-789dc3deb097",OrderType::PostOnly,Side::BUY,6700000,67);
 	 Trades trades = ob.placeOrder(std::make_unique<Order>(o));
 	 ASSERT_EQ(trades.size(),0);
 	 ASSERT_EQ(ob.getBids().size(),1);
 }
 
 TEST_F(OrderBookTest,AdddingRedundantIdsToTheBook){
-	 Order o1(1,OrderType::PostOnly,Side::BUY,6700000,67);
-	 Order o2(1,OrderType::PostOnly,Side::BUY,6700000,67);
+	 Order o1("e2a85d9f-07a5-4f94-8d5f-789dc3deb097",OrderType::PostOnly,Side::BUY,6700000,67);
+	 Order o2("e2a85d9f-07a5-4f94-8d5f-789dc3deb098",OrderType::PostOnly,Side::BUY,6700000,67);
 	 Trades trades1 = ob.placeOrder(std::make_unique<Order>(o1));
 	 Trades trades2 = ob.placeOrder(std::make_unique<Order>(o2));
 	 ASSERT_EQ(trades1.size(),0);
@@ -40,33 +40,33 @@ TEST_F(OrderBookTest,AdddingRedundantIdsToTheBook){
 }
 
 TEST_F(OrderBookTest,CancelValidOrder){
-	 Order o(1,OrderType::PostOnly,Side::BUY,6700000,67);
+	 Order o("e2a85d9f-07a5-4f94-8d5f-789dc3deb097",OrderType::PostOnly,Side::BUY,6700000,67);
 	 //no needs to store trades
 	 ob.placeOrder(std::make_unique<Order>(o));
-	 bool succesfullDel = ob.cancelOrder(1);
+	 bool succesfullDel = ob.cancelOrder("e2a85d9f-07a5-4f94-8d5f-789dc3deb097");
 	 ASSERT_TRUE(succesfullDel);
 	 EXPECT_EQ(ob.getBids().size(),0);
 }
 
 TEST_F(OrderBookTest, CancelOnEmptyBook){
-    bool succesfulDel = ob.cancelOrder(1);
+    bool succesfulDel = ob.cancelOrder("e2a85d9f-07a5-4f94-8d5f-789dc3deb097");
     ASSERT_FALSE(succesfulDel);
     EXPECT_EQ(ob.getBids().size(), 0);
     EXPECT_EQ(ob.getAsks().size(), 0);
 }
 
 TEST_F(OrderBookTest,CancelInvalidOrder){
-	 Order o(1,OrderType::PostOnly,Side::BUY,6700000,67);
+	 Order o("e2a85d9f-07a5-4f94-8d5f-789dc3deb097",OrderType::PostOnly,Side::BUY,6700000,67);
 	 //no need to store trades
 	 ob.placeOrder(std::make_unique<Order>(o));
-	 bool succesfulDel = ob.cancelOrder(2);
+	 bool succesfulDel = ob.cancelOrder("e2a85d9f-07a5-4f94-8d5f-789dc3deb099");
 	 ASSERT_FALSE(succesfulDel);
 	 EXPECT_EQ(ob.getBids().size(),1);
 }
 
 TEST_F(OrderBookTest,LimitOrderTest){
-	 Order o(1,OrderType::PostOnly,Side::SELL,66000,67);
-	 Order o2(2,OrderType::Limit,Side::BUY,670000,67);
+	 Order o("e2a85d9f-07a5-4f94-8d5f-789dc3deb097",OrderType::PostOnly,Side::SELL,66000,67);
+	 Order o2("e2a85d9f-07a5-4f94-8d5f-789dc3deb098",OrderType::Limit,Side::BUY,670000,67);
 	 ob.placeOrder(std::make_unique<Order>(o));
 	 Trades trade = ob.placeOrder(std::make_unique<Order>(o2));
 	 std::cout << trade.size() << '\n';
@@ -74,26 +74,26 @@ TEST_F(OrderBookTest,LimitOrderTest){
 }
 
 TEST_F(OrderBookTest,LimitOrderFail){
-	 Order o(1,OrderType::PostOnly,Side::SELL,6700800,67);
-	 Order o2(2,OrderType::Limit,Side::BUY,670000,67);
+	 Order o("e2a85d9f-07a5-4f94-8d5f-789dc3deb097",OrderType::PostOnly,Side::SELL,6700800,67);
+	 Order o2("e2a85d9f-07a5-4f94-8d5f-789dc3deb098",OrderType::Limit,Side::BUY,670000,67);
 	 ob.placeOrder(std::make_unique<Order>(o));
 	 Trades trade = ob.placeOrder(std::make_unique<Order>(o2));
 	 ASSERT_EQ(trade.size(),0);
 }
 
 TEST_F(OrderBookTest, LimitOrderPartialFill){
-    Order o(1, OrderType::PostOnly, Side::SELL, 6700800, 67);
-    Order o2(2, OrderType::Limit, Side::BUY, 6700800, 40);
+    Order o("e2a85d9f-07a5-4f94-8d5f-789dc3deb097", OrderType::PostOnly, Side::SELL, 6700800, 67);
+    Order o2("e2a85d9f-07a5-4f94-8d5f-789dc3deb098", OrderType::Limit, Side::BUY, 6700800, 40);
     ob.placeOrder(std::make_unique<Order>(o));
     Trades trade = ob.placeOrder(std::make_unique<Order>(o2));
     EXPECT_THAT(trade, ElementsAre(
         AllOf(
             Property(&Trade::getAskTrade, AllOf(
-                Field(&TradeInfo::orderId_, 1),
+                Field(&TradeInfo::orderId_, "e2a85d9f-07a5-4f94-8d5f-789dc3deb097"),
                 Field(&TradeInfo::quantity_,27)
             )),
             Property(&Trade::getBidTrade, AllOf(
-                Field(&TradeInfo::orderId_, 2),
+                Field(&TradeInfo::orderId_, "e2a85d9f-07a5-4f94-8d5f-789dc3deb098"),
                 Field(&TradeInfo::quantity_, 0)
             ))
         )
@@ -102,18 +102,18 @@ TEST_F(OrderBookTest, LimitOrderPartialFill){
 }
 
 TEST_F(OrderBookTest,MarketOrderMatch){
-    Order o(1, OrderType::PostOnly, Side::SELL, 67008000000, 67);
-    Order o2(2,Side::BUY, 40);
+    Order o("e2a85d9f-07a5-4f94-8d5f-789dc3deb097", OrderType::PostOnly, Side::SELL, 67008000000, 67);
+    Order o2("e2a85d9f-07a5-4f94-8d5f-789dc3deb098",Side::BUY, 40);
     ob.placeOrder(std::make_unique<Order>(o));
     Trades trade = ob.placeOrder(std::make_unique<Order>(o2));
 	 EXPECT_THAT(trade, ElementsAre(
         AllOf(
             Property(&Trade::getAskTrade, AllOf(
-                Field(&TradeInfo::orderId_, 1),
+                Field(&TradeInfo::orderId_, "e2a85d9f-07a5-4f94-8d5f-789dc3deb097"),
                 Field(&TradeInfo::quantity_,27)
             )),
             Property(&Trade::getBidTrade, AllOf(
-                Field(&TradeInfo::orderId_, 2),
+                Field(&TradeInfo::orderId_, "e2a85d9f-07a5-4f94-8d5f-789dc3deb098"),
                 Field(&TradeInfo::quantity_, 0)
             ))
         )
@@ -123,18 +123,18 @@ TEST_F(OrderBookTest,MarketOrderMatch){
 }
 
 TEST_F(OrderBookTest,MarketOrderPartialFill){
-    Order o(1, OrderType::PostOnly, Side::SELL, 67008000000, 7);
-    Order o2(2,Side::BUY, 40);
+    Order o("e2a85d9f-07a5-4f94-8d5f-789dc3deb097", OrderType::PostOnly, Side::SELL, 67008000000, 7);
+    Order o2("e2a85d9f-07a5-4f94-8d5f-789dc3deb098",Side::BUY, 40);
     ob.placeOrder(std::make_unique<Order>(o));
     Trades trade = ob.placeOrder(std::make_unique<Order>(o2));
 	 EXPECT_THAT(trade, ElementsAre(
         AllOf(
             Property(&Trade::getAskTrade, AllOf(
-                Field(&TradeInfo::orderId_, 1),
+                Field(&TradeInfo::orderId_, "e2a85d9f-07a5-4f94-8d5f-789dc3deb097"),
                 Field(&TradeInfo::quantity_,0)
             )),
             Property(&Trade::getBidTrade, AllOf(
-                Field(&TradeInfo::orderId_, 2),
+                Field(&TradeInfo::orderId_, "e2a85d9f-07a5-4f94-8d5f-789dc3deb098"),
                 Field(&TradeInfo::quantity_,33)
             ))
         )
@@ -145,8 +145,8 @@ TEST_F(OrderBookTest,MarketOrderPartialFill){
 }
 
 TEST_F(OrderBookTest,MarketOrderCantFill){
-    //Order o(1, OrderType::PostOnly, Side::SELL, 67008000000, 7);
-    Order o2(2,Side::BUY, 40);
+    //Order o("e2a85d9f-07a5-4f94-8d5f-789dc3deb097", OrderType::PostOnly, Side::SELL, 67008000000, 7);
+    Order o2("e2a85d9f-07a5-4f94-8d5f-789dc3deb098",Side::BUY, 40);
     //ob.placeOrder(std::make_unique<Order>(o));
     Trades trade = ob.placeOrder(std::make_unique<Order>(o2));
 	 ASSERT_EQ(trade.size(),0);
@@ -156,18 +156,18 @@ TEST_F(OrderBookTest,MarketOrderCantFill){
 }
 
 TEST_F(OrderBookTest,FillAndKillOrderMatch){
-	 Order o(1, OrderType::PostOnly, Side::SELL, 67008000000, 7);
-    Order o2(2, OrderType::FillAndKill, Side::BUY, 67008000000, 7);
+	 Order o("e2a85d9f-07a5-4f94-8d5f-789dc3deb097", OrderType::PostOnly, Side::SELL, 67008000000, 7);
+    Order o2("e2a85d9f-07a5-4f94-8d5f-789dc3deb098", OrderType::FillAndKill, Side::BUY, 67008000000, 7);
     ob.placeOrder(std::make_unique<Order>(o));
     Trades trade = ob.placeOrder(std::make_unique<Order>(o2));
 	 EXPECT_THAT(trade, ElementsAre(
         AllOf(
             Property(&Trade::getAskTrade, AllOf(
-                Field(&TradeInfo::orderId_, 1),
+                Field(&TradeInfo::orderId_, "e2a85d9f-07a5-4f94-8d5f-789dc3deb097"),
                 Field(&TradeInfo::quantity_,0)
             )),
             Property(&Trade::getBidTrade, AllOf(
-                Field(&TradeInfo::orderId_, 2),
+                Field(&TradeInfo::orderId_, "e2a85d9f-07a5-4f94-8d5f-789dc3deb098"),
                 Field(&TradeInfo::quantity_,0)
             ))
         )
@@ -177,7 +177,7 @@ TEST_F(OrderBookTest,FillAndKillOrderMatch){
 }
 
 TEST_F(OrderBookTest,FillAndKillCantMatch){
-    Order o2(2, OrderType::FillAndKill, Side::BUY, 67008000000, 7);
+    Order o2("e2a85d9f-07a5-4f94-8d5f-789dc3deb098", OrderType::FillAndKill, Side::BUY, 67008000000, 7);
     Trades trade = ob.placeOrder(std::make_unique<Order>(o2));
 	 ASSERT_EQ(trade.size(),0); 
 	 EXPECT_EQ(ob.getAsks().size(),0);
@@ -185,18 +185,18 @@ TEST_F(OrderBookTest,FillAndKillCantMatch){
 }
 
 TEST_F(OrderBookTest,FillAndKillPartialFill){
-	 Order o(1, OrderType::PostOnly, Side::SELL, 67008000000, 6);
-    Order o2(2, OrderType::FillAndKill, Side::BUY, 67008000000, 7);
+	 Order o("e2a85d9f-07a5-4f94-8d5f-789dc3deb097", OrderType::PostOnly, Side::SELL, 67008000000, 6);
+    Order o2("e2a85d9f-07a5-4f94-8d5f-789dc3deb098", OrderType::FillAndKill, Side::BUY, 67008000000, 7);
     ob.placeOrder(std::make_unique<Order>(o));
     Trades trade = ob.placeOrder(std::make_unique<Order>(o2));
 	 EXPECT_THAT(trade, ElementsAre(
         AllOf(
             Property(&Trade::getAskTrade, AllOf(
-                Field(&TradeInfo::orderId_, 1),
+                Field(&TradeInfo::orderId_, "e2a85d9f-07a5-4f94-8d5f-789dc3deb097"),
                 Field(&TradeInfo::quantity_,0)
             )),
             Property(&Trade::getBidTrade, AllOf(
-                Field(&TradeInfo::orderId_, 2),
+                Field(&TradeInfo::orderId_, "e2a85d9f-07a5-4f94-8d5f-789dc3deb098"),
                 Field(&TradeInfo::quantity_,1)
             ))
         )
@@ -206,18 +206,18 @@ TEST_F(OrderBookTest,FillAndKillPartialFill){
 }
 
 TEST_F(OrderBookTest,FillOrKillCanMatch){
-	 Order o(1, OrderType::PostOnly, Side::SELL, 67008000000, 6);
-    Order o2(2, OrderType::FillOrKill, Side::BUY, 67008000000, 6);
+	 Order o("e2a85d9f-07a5-4f94-8d5f-789dc3deb097", OrderType::PostOnly, Side::SELL, 67008000000, 6);
+    Order o2("e2a85d9f-07a5-4f94-8d5f-789dc3deb098", OrderType::FillOrKill, Side::BUY, 67008000000, 6);
     ob.placeOrder(std::make_unique<Order>(o));
     Trades trade = ob.placeOrder(std::make_unique<Order>(o2));
 	 EXPECT_THAT(trade, ElementsAre(
         AllOf(
             Property(&Trade::getAskTrade, AllOf(
-                Field(&TradeInfo::orderId_, 1),
+                Field(&TradeInfo::orderId_, "e2a85d9f-07a5-4f94-8d5f-789dc3deb097"),
                 Field(&TradeInfo::quantity_,0)
             )),
             Property(&Trade::getBidTrade, AllOf(
-                Field(&TradeInfo::orderId_, 2),
+                Field(&TradeInfo::orderId_, "e2a85d9f-07a5-4f94-8d5f-789dc3deb098"),
                 Field(&TradeInfo::quantity_,0)
             ))
         )
@@ -227,9 +227,9 @@ TEST_F(OrderBookTest,FillOrKillCanMatch){
 }
 
 TEST_F(OrderBookTest, FillOrKillCanMatchMultipleOrder) {
-    Order o(1, OrderType::PostOnly, Side::SELL, 67008000000, 3);
-    Order o3(3, OrderType::PostOnly, Side::SELL, 67008000000, 3);
-    Order o2(2, OrderType::FillOrKill, Side::BUY, 67008000000, 6);
+    Order o("e2a85d9f-07a5-4f94-8d5f-789dc3deb097", OrderType::PostOnly, Side::SELL, 67008000000, 3);
+    Order o3("e2a85d9f-07a5-4f94-8d5f-789dc3deb099", OrderType::PostOnly, Side::SELL, 67008000000, 3);
+    Order o2("e2a85d9f-07a5-4f94-8d5f-789dc3deb098", OrderType::FillOrKill, Side::BUY, 67008000000, 6);
 
     ob.placeOrder(std::make_unique<Order>(o));
     ob.placeOrder(std::make_unique<Order>(o3));
@@ -238,21 +238,21 @@ TEST_F(OrderBookTest, FillOrKillCanMatchMultipleOrder) {
     EXPECT_THAT(trade, ElementsAre(
         AllOf(
             Property(&Trade::getAskTrade, AllOf(
-                Field(&TradeInfo::orderId_, 1),
+                Field(&TradeInfo::orderId_, "e2a85d9f-07a5-4f94-8d5f-789dc3deb097"),
                 Field(&TradeInfo::quantity_, 0)
             )),
             Property(&Trade::getBidTrade, AllOf(
-                Field(&TradeInfo::orderId_, 2),
+                Field(&TradeInfo::orderId_, "e2a85d9f-07a5-4f94-8d5f-789dc3deb098"),
                 Field(&TradeInfo::quantity_, 3)
             ))
         ),
         AllOf(
             Property(&Trade::getAskTrade, AllOf(
-                Field(&TradeInfo::orderId_, 3),
+                Field(&TradeInfo::orderId_, "e2a85d9f-07a5-4f94-8d5f-789dc3deb099"),
                 Field(&TradeInfo::quantity_, 0)
             )),
             Property(&Trade::getBidTrade, AllOf(
-                Field(&TradeInfo::orderId_, 2),
+                Field(&TradeInfo::orderId_, "e2a85d9f-07a5-4f94-8d5f-789dc3deb098"),
                 Field(&TradeInfo::quantity_, 0)
             ))
         )
@@ -262,8 +262,8 @@ TEST_F(OrderBookTest, FillOrKillCanMatchMultipleOrder) {
     EXPECT_EQ(ob.getBids().size(), 0);
 }
 TEST_F(OrderBookTest,FillOrKillCantMatch){
-	 Order o(1, OrderType::PostOnly, Side::SELL, 67008000000, 3);
-    Order o2(2, OrderType::FillOrKill, Side::BUY, 67008000000, 6);
+	 Order o("e2a85d9f-07a5-4f94-8d5f-789dc3deb097", OrderType::PostOnly, Side::SELL, 67008000000, 3);
+    Order o2("e2a85d9f-07a5-4f94-8d5f-789dc3deb098", OrderType::FillOrKill, Side::BUY, 67008000000, 6);
     ob.placeOrder(std::make_unique<Order>(o));
     Trades trade = ob.placeOrder(std::make_unique<Order>(o2));
 	 ASSERT_EQ(trade.size(),0); 
@@ -272,18 +272,18 @@ TEST_F(OrderBookTest,FillOrKillCantMatch){
 }
 
 TEST_F(OrderBookTest,GoodTillCancelInsertFilledBeforeInBook){
-	 Order o(1, OrderType::PostOnly, Side::SELL, 67008000000, 6);
-    Order o2(2, OrderType::GoodTillCancel, Side::BUY, 67008000000, 6);
+	 Order o("e2a85d9f-07a5-4f94-8d5f-789dc3deb097", OrderType::PostOnly, Side::SELL, 67008000000, 6);
+    Order o2("e2a85d9f-07a5-4f94-8d5f-789dc3deb098", OrderType::GoodTillCancel, Side::BUY, 67008000000, 6);
     ob.placeOrder(std::make_unique<Order>(o));
     Trades trade = ob.placeOrder(std::make_unique<Order>(o2));
 	 EXPECT_THAT(trade, ElementsAre(
         AllOf(
             Property(&Trade::getAskTrade, AllOf(
-                Field(&TradeInfo::orderId_, 1),
+                Field(&TradeInfo::orderId_, "e2a85d9f-07a5-4f94-8d5f-789dc3deb097"),
                 Field(&TradeInfo::quantity_,0)
             )),
             Property(&Trade::getBidTrade, AllOf(
-                Field(&TradeInfo::orderId_, 2),
+                Field(&TradeInfo::orderId_, "e2a85d9f-07a5-4f94-8d5f-789dc3deb098"),
                 Field(&TradeInfo::quantity_,0)
             ))
         )
@@ -293,18 +293,18 @@ TEST_F(OrderBookTest,GoodTillCancelInsertFilledBeforeInBook){
 }
 
 TEST_F(OrderBookTest,GoodTillCancelPartialFill){
-	 Order o(1, OrderType::PostOnly, Side::SELL, 67008000000, 6);
-    Order o2(2, OrderType::GoodTillCancel, Side::BUY, 67008000000, 12);
+	 Order o("e2a85d9f-07a5-4f94-8d5f-789dc3deb097", OrderType::PostOnly, Side::SELL, 67008000000, 6);
+    Order o2("e2a85d9f-07a5-4f94-8d5f-789dc3deb098", OrderType::GoodTillCancel, Side::BUY, 67008000000, 12);
     ob.placeOrder(std::make_unique<Order>(o));
     Trades trade = ob.placeOrder(std::make_unique<Order>(o2));
 	 EXPECT_THAT(trade, ElementsAre(
         AllOf(
             Property(&Trade::getAskTrade, AllOf(
-                Field(&TradeInfo::orderId_, 1),
+                Field(&TradeInfo::orderId_, "e2a85d9f-07a5-4f94-8d5f-789dc3deb097"),
                 Field(&TradeInfo::quantity_,0)
             )),
             Property(&Trade::getBidTrade, AllOf(
-                Field(&TradeInfo::orderId_, 2),
+                Field(&TradeInfo::orderId_, "e2a85d9f-07a5-4f94-8d5f-789dc3deb098"),
                 Field(&TradeInfo::quantity_,6)
             ))
         )
@@ -314,30 +314,30 @@ TEST_F(OrderBookTest,GoodTillCancelPartialFill){
 }
 
 TEST_F(OrderBookTest,GoodTillCancelFillWithMultipleOrder){
-	 Order o(1, OrderType::PostOnly, Side::SELL, 67008000000, 6);
-    Order o2(2, OrderType::GoodTillCancel, Side::BUY, 67008000000, 12);
-    Order o3(3, OrderType::PostOnly, Side::SELL, 67008000000, 6);
+	 Order o("e2a85d9f-07a5-4f94-8d5f-789dc3deb097", OrderType::PostOnly, Side::SELL, 67008000000, 6);
+    Order o2("e2a85d9f-07a5-4f94-8d5f-789dc3deb098", OrderType::GoodTillCancel, Side::BUY, 67008000000, 12);
+    Order o3("e2a85d9f-07a5-4f94-8d5f-789dc3deb099", OrderType::PostOnly, Side::SELL, 67008000000, 6);
     ob.placeOrder(std::make_unique<Order>(o));
     ob.placeOrder(std::make_unique<Order>(o3));
     Trades trade = ob.placeOrder(std::make_unique<Order>(o2));
 	 EXPECT_THAT(trade, ElementsAre(
         AllOf(
             Property(&Trade::getAskTrade, AllOf(
-                Field(&TradeInfo::orderId_, 1),
+                Field(&TradeInfo::orderId_, "e2a85d9f-07a5-4f94-8d5f-789dc3deb097"),
                 Field(&TradeInfo::quantity_,0)
             )),
             Property(&Trade::getBidTrade, AllOf(
-                Field(&TradeInfo::orderId_, 2),
+                Field(&TradeInfo::orderId_, "e2a85d9f-07a5-4f94-8d5f-789dc3deb098"),
                 Field(&TradeInfo::quantity_,6)
             ))
         ),
 		  AllOf(
             Property(&Trade::getAskTrade, AllOf(
-                Field(&TradeInfo::orderId_, 3),
+                Field(&TradeInfo::orderId_, "e2a85d9f-07a5-4f94-8d5f-789dc3deb099"),
                 Field(&TradeInfo::quantity_,0)
             )),
             Property(&Trade::getBidTrade, AllOf(
-                Field(&TradeInfo::orderId_, 2),
+                Field(&TradeInfo::orderId_, "e2a85d9f-07a5-4f94-8d5f-789dc3deb098"),
                 Field(&TradeInfo::quantity_,0)
             ))
         )
@@ -347,7 +347,7 @@ TEST_F(OrderBookTest,GoodTillCancelFillWithMultipleOrder){
 }
 
 TEST_F(OrderBookTest,GoodTillCancelCantFill){
-	 Order o(1, OrderType::PostOnly, Side::SELL, 67008000000, 6);
+	 Order o("e2a85d9f-07a5-4f94-8d5f-789dc3deb097", OrderType::PostOnly, Side::SELL, 67008000000, 6);
     ob.placeOrder(std::make_unique<Order>(o));
 	 EXPECT_EQ(ob.getAsks().size(),1);
 	 EXPECT_EQ(ob.getBids().size(),0);

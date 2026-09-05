@@ -11,7 +11,6 @@
 #include "ftxui/dom/elements.hpp"  // for hflow, paragraph, separator, hbox, vbox, filler, operator|, border, Element
 #include "ftxui/dom/node.hpp"      // for Render
 #include "ftxui/screen/box.hpp"    // for ftxui
- 
 using namespace std::chrono_literals;
 int main() {
   using namespace ftxui;
