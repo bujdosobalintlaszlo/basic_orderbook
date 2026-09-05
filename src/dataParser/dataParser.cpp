@@ -6,18 +6,11 @@
 class DataParser{
 public:
 		  static std::vector<Order> readData(const std::string& filename){
-				std::vector<Order> orders;
-				try{
-					 std::ifstream stream{filename};
-					 std::string line;
-					 while(getline(stream,line)){
-						  std::cout << line << '\n';	  
-					 }
-				}catch(std::exception e){
-					 throw e;
-				}
-				return orders;
+				std::ifstream file(filename);
+				std::string line;
+				while(std::getline(file,line)){
 
+				}
 		  }
 };
 
@@ -27,7 +20,7 @@ std::unique_ptr<Order> createOrder(std::string& in){
 
 int main(){
 	 DataParser d;
-	 d.readData("test.csv");
+	 d.readData("test.json");
 	 return 0;
 }
 /*
