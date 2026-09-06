@@ -124,7 +124,6 @@ bool OrderBook::insertIntoBook(OrderPtr &order,std::map<Price,Orders,Comparator>
 	 auto order_it = std::prev(it->second.end());
 	 OrderBook::InsertInfo i(price,side,order_it);
 	 orders_.insert({id,i}); 
-	 std::cout << orders_.size() << " SIZE OF ORDERS" << '\n';
 	 return true;
 }
 
@@ -158,7 +157,6 @@ bool OrderBook::cancel(BookType& book,std::unordered_map<OrderId,InsertInfo>::it
 ///FONTOS FOK tobb orderbol is fillelheto csak a vegere nem maradhta
 template<typename Comparator>
 Trades OrderBook::FOK(OrderPtr &order,std::map<Price,Orders,Comparator> &book){
-   std::cout << " IN FOK" << '\n';
 	if(!canMatch(order,book)){
 		  return {};
 	}
@@ -177,9 +175,7 @@ Trades OrderBook::FOK(OrderPtr &order,std::map<Price,Orders,Comparator> &book){
 					 else if(order->getSide() == Side::SELL && order->getPrice() <= current_order->getPrice()){
 						  fill_qty = std::min(order->getRemainingQuantity(), current_order->getRemainingQuantity());
 					 }
-					 std::cout << "Fill qty: " <<fill_qty << '\n';
 					 if(fill_qty > 0){
-						  std::cout << "filled with " << fill_qty << " quantity" <<'\n';
 						  uint64_t fill_price = current_order->getPrice();
 						  order->fill(fill_qty);
 						  current_order->fill(fill_qty);

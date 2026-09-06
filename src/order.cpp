@@ -68,4 +68,3 @@ void Order::printOrder() const {
               << ", Fulfillment: " << getFufillmentOfOrder() << "%\n";
 }
 
-
