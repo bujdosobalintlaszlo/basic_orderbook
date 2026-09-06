@@ -1,0 +1,71 @@
+#include "orderbook/order.h"
+#include <iostream>
+#include <stdexcept>
+#include <string>
+#include "orderbook/types.h"
+#include "orderbook/constants.h"
+//IMPLEMENT LIMIT
+Order::Order(OrderId id, OrderType orderType, Side side, Price price, Quantity quantity) 
+    : id_(id), orderType_(orderType), side_(side), price_(price), 
+      initial_quantity_(quantity), remaining_quantity_(quantity) {
+      
+    if (quantity <= 0) {
+        throw std::invalid_argument("Order quantity cannot be zero! Order ID: " + id);
+    }
+	 if(orderType == OrderType::Market){
+		  if (price != Constants::InvalidPrice) {
+            throw std::invalid_argument("Market order must not have a price! Order ID: " +id);
+        }
+	 }else{
+		   if (price == Constants::InvalidPrice || price <= 0) {
+            throw std::invalid_argument("Order price must be positive! Order ID: "
+                + id + " with PRICE: " + std::to_string(price));
+        }
+	 }
+}
+
+//Order::Order(OrderId id, Side side, Quantity quantity) : Order(id,OrderType::Market,side,Constants::InvalidPrice,quantity){}
+
+// Getters
+OrderId Order::getId() const { return id_; }
+OrderType Order::getOrderType() const { return orderType_; }
+Side Order::getSide() const { return side_; }
+Price Order::getPrice() const { return price_; }
+Quantity Order::getInitialQuantity() const { return initial_quantity_; }
+Quantity Order::getRemainingQuantity() const { return remaining_quantity_; }
+
+// Modifiers & Calculations
+void Order::fill(uint64_t quantity) {
+    if (quantity > remaining_quantity_) {
+        throw std::invalid_argument("Tried to fill more than remaining quantity!");
+    }
+    remaining_quantity_ -= quantity;
+}
+
+Quantity Order::filledQuantity() const {
+    return initial_quantity_ - remaining_quantity_;
+}
+
+double Order::getFufillmentOfOrder() const {
+    if (initial_quantity_ == 0) return 0.0;
+    return (static_cast<double>(filledQuantity()) / initial_quantity_) * 100.0;
+}
+
+bool Order::isFilled() const { 
+    return remaining_quantity_ == 0; 
+}
+double Order::convertToDecimal(uint64_t price) const{
+	 return price / 10000.0;
+}
+//PS.: SUPPORING 4 decimals
+void Order::printOrder() const {
+    std::cout << "Order ID: " << getId() 
+              << ", Type: " << getOrderType() 
+              << ", Side: " << getSide()
+              << ", Price: " << convertToDecimal(getPrice()) 
+              << ", Initial Qty: " << getInitialQuantity() 
+              << ", Remaining Qty: " << getRemainingQuantity() 
+              << ", Fulfillment: " << getFufillmentOfOrder() << "%\n";
+}
+
+
