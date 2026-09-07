@@ -14,6 +14,18 @@ double Market::getFufillmentOfOrder() const {
     if (initial_quantity_ == 0) return 0.0;
     return (static_cast<double>(filledQuantity()) / initial_quantity_) * 100.0;
 }
+bool Market::setQuantity(Quantity qnt){
+	if(qnt < 0 || qnt == remaining_quantity_ || (remaining_quantity_ == initial_quantity_ && remaining_quanity_ == qnt)){
+		  throw std::invalid_argument("An invalid quantity was given at ID: "+id_);
+	}
+	if(qnt < initial_quantity_){
+		  remaining_quantity_=qnt;
+	}else{
+		  initial_quantity_=qnt;
+		  remaining_quantity_=qnt;
+	}
+	 return true;	
+}
 void Market::printOrder() const{
 	 std::cout << "Order ID: " << getId() 
               << ", Type: " << getOrderType() 

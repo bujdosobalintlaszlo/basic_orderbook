@@ -26,7 +26,8 @@ OrderPtr DataParser::createOrder(const std::string& line){
 				Side side = static_cast<Side>(std::stoi(words.at(2)));
 				Price price = std::stod(words.at(3));
 				Quantity quantity = std::stoull(words.at(4));
-				return std::make_unique<Order>(id, orderType, side, price, quantity);
+				Date date = std::stoull(words.at(5));
+				return std::make_unique<Order>(id, orderType, side, price, quantity,date);
 		  }
     }catch(const std::exception& e){
         std::cerr << "Failed to parse line: " << e.what() << '\n';
@@ -43,7 +44,8 @@ MarketOrderPtr DataParser::createMarketOrder(const std::string& line){
 				OrderType orderType = static_cast<OrderType>(std::stoi(words.at(1)));
 				Side side = static_cast<Side>(std::stoi(words.at(2)));
 				Quantity quantity = std::stoull(words.at(3));
-				return std::make_unique<Market>(id, orderType, side, quantity);
+				Date date = std::stoull(words.at(4))
+				return std::make_unique<Market>(id, orderType, side, quantity,date);
 		  }
     }catch(const std::exception& e){
         std::cerr << "Failed to parse line: " << e.what() << '\n';

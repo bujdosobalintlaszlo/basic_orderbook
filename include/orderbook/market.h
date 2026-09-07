@@ -9,8 +9,9 @@ private:
 	 Side side_;
 	 Quantity initial_quantity_;
 	 Quantity remaining_quantity_;
+	 Date date_;
 public:
-	 Market(OrderId id,OrderType orderType,Side side,Quantity init_quant) : id_(id), orderType_(orderType),side_(side), initial_quantity_(init_quant), remaining_quantity_(init_quant) {}
+	 Market(OrderId id,OrderType orderType,Side side,Quantity init_quant,Date date) : id_(id), orderType_(orderType),side_(side), initial_quantity_(init_quant), remaining_quantity_(init_quant),date_(date) {}
 	 //getters
 	 OrderId getId() const;
 	 OrderType getOrderType() const;
@@ -20,6 +21,7 @@ public:
 	 Quantity filledQuantity() const;
 	 bool isFilled() const;
 	 //setters
+	 bool setQuantity(Quantity qnt);
 	 void fill(Quantity quantity);
 	 
 	 //display only/debug

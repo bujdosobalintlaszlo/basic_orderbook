@@ -2,7 +2,16 @@
 #include "side.h"
 #include "ordertype.h"
 #include "types.h"
-//might implement std::optional<Price> for now separate Market class 
+/*
+!!!IMPORTANT!!! timeInforce: order can be limit and have a time enforcer like GTC
+have to be careful at parse
+Example imp;
+modId,uuid,orderType(0-8 for now 7 cause gfd not implemented yet),side(0-1),price(uint64_t),quantity(uint64_t),date(uint64_t),symbol(string)
+symbols:
+	 b - buy -> upper mentioned
+	 c - cancel - needs id only -> c,uuid
+	 m - modify - needs id, (ONLY price and quantity) -> modifyId(p || q) and the amount
+ * */
 class Order{
 private:
 	 OrderId id_;
@@ -11,10 +20,11 @@ private:
 	 Price price_;
 	 Quantity initial_quantity_;
 	 Quantity remaining_quantity_;
-	 double convertToDecimal(uint64_t price) const;
+	 Date date_;
+	 Symbol symbol_;
+	 double convertToDecimal(Price price) const;
 public:
-	 Order(OrderId id,OrderType orderType,Side side,Price price,Quantity quantity);
-	 //Order(OrderId id, Side side, Quantity quantity);
+	 Order(OrderId id,OrderType orderType,Side side,Price price,Quantity quantity, Date date, Symbol symbol);
 	 //getters
 	 OrderId getId() const;
 	 OrderType getOrderType() const;
@@ -22,10 +32,13 @@ public:
 	 Price getPrice()const;
 	 Quantity getInitialQuantity()const;
 	 Quantity getRemainingQuantity()const;
-	 //bool hasPrice() const;
+	 Date getDate() const;
+	 Symbol getSymbol() const;
 	 //setters
-	 void fill(uint64_t quantity);
+	 void fill(Quantity quantity);
 	 Quantity filledQuantity() const;
+	 bool setQuantity(Quantity qnt);
+	 bool setPrice(Price price);
 
 	 //only for display
 	 double getFufillmentOfOrder() const;
