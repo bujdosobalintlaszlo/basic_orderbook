@@ -14,7 +14,6 @@
 #include "dataParser/dataParser.h"
 //using namespace std::chrono_literals;
 #include "orderbook/orderbook.h"
-#include <fstream>
 #include "orderbook/order.h"
 #include "orderbook/market.h"
 #include <chrono>
@@ -58,11 +57,7 @@
 
 int main(){
     std::string path = std::string(PROJECT_ROOT) + "/" + "src/dataParser/orders_2000000.csv";
-    std::ifstream f(path);
-    if(!f.is_open()){
-        std::cerr << "Failed to open file: " << path << '\n';
-        return 1;
-    }
+    
 
     OrderBook book;
     std::string line;
@@ -74,6 +69,15 @@ int main(){
         if(line.empty()) continue;
 
         std::vector<std::string> data = DataParser::splitLine(line, ',');
+		  if(data.size() == 9){
+				ModId mod = std::stoi(data.at(0));
+				switch(mod){
+					 case 0:
+						  book.modifyOrderPrice(stoi());
+				}
+		  }else{
+
+		  }
         OrderType ot = static_cast<OrderType>(std::stoi(data.at(1)));
 
         Trades trades;

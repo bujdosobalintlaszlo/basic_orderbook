@@ -232,6 +232,15 @@ bool OrderBook::canMatch(OrderPtr &order, std::map<Price,Orders,Comparator> &boo
     return false;
 }
 
+template<typename Comparator>
+bool modifyOrderPrice(OrderId id,Price newPrice){
+	 return false;
+}
+template<typename Comparator>
+bool modifyOrderQuantity(OrderId id,Quantity newQuantity){
+	 return false;
+}
+
 
 Trades OrderBook::placeOrder(OrderPtr order){
 	 if(!order) throw std::invalid_argument("Invalid order was submited!");

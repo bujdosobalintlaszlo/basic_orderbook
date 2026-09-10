@@ -15,4 +15,4 @@ using OrderDate = std::uint64_t;
 using MarketOrderPtr = std::unique_ptr<Market>;
 using Date = std::uint64_t;
 using Symbol = std::string;
-
+using ModId =int;
