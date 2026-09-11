@@ -30,7 +30,7 @@ private:
 	 std::map<Price,Orders,std::greater<uint64_t>> bids_;
 	 std::map<Price,Orders> asks_;
 	 std::unordered_map<OrderId,InsertInfo> orders_;
-
+	 using HelperMapIt = std::unordered_map<OrderId,InsertInfo>::iterator;
 public:
 	 const std::map<Price,Orders,std::greater<uint64_t>>& getBids() const noexcept;
 	 const std::map<Price,Orders>& getAsks() const noexcept;
@@ -56,9 +56,14 @@ public:
 	 Trades matchLimitOrder(OrderPtr &order, std::map<Price,Orders, Compare> &book);
 	 template<typename Comparator>
 	 bool canMatch(OrderPtr &order,std::map<Price,Orders,Comparator> &book);
+	 //order modifications
 	 bool modifyOrderPrice(OrderId id,Price newPrice);
 	 template<typename Comparator>
 	 void executePriceMod(std::map<Price,Orders,Comparator> &book,Price newPrice,Orders::iterator item_it);
+	 bool modifyOrderQuantity(OrderId id,Quantity newQuantity);
+	 template<typename Comparator>
+	 void executeModifyOrder(std::map<Price,Orders,Comparator> &book,HelperMapIt order_it,Quantity newQuantity);
+	 //---
 	 template<typename Comparator>
 	 bool modifyOrderQuantity(OrderId id,Quantity newQuantity);
 };

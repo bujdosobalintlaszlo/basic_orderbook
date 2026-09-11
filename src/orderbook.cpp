@@ -236,28 +236,41 @@ bool OrderBook::canMatch(OrderPtr &order, std::map<Price,Orders,Comparator> &boo
 template<typename Comparator>
 void OrderBook::executePriceMod(std::map<Price,Orders,Comparator> &book,Price newPrice,Orders::iterator item_it){
 	 auto[it,inserted] = bids_.try_emplace(newPrice);
+	 item_it->get()->setPrice(newPrice);
 	 it->second.push_back(std::move(*(item_it)));
 }
 bool OrderBook::modifyOrderPrice(OrderId id,Price newPrice){
 	 auto order_it = orders_.find(id);
 	 //wont modify if it doesnt exists or has the same price
-	 if(order_it != orders_.end() && order_it->second.price_ != newPrice){
+	 if(order_it != orders_.end()){
 		  if(order_it->second.side_ == Side::BUY){
-				/*
-				auto[it,inserted] = bids_.try_emplace(newPrice);
-				it->second.push_back(std::move(*(order_it->second.it_)));
-				*/
 				executePriceMod(bids_,newPrice,order_it->second.it_);
-				return true;
 				
 		  }else{
 				executePriceMod(asks_,newPrice,order_it->second.it_);
-				return true;
 		  }
+		  return true;
 	 }
 	 return false;
 }
-bool modifyOrderQuantity(OrderId id,Quantity newQuantity){
+template<typename Comparator>
+void OrderBook::executeModifyOrder(std::map<Price,Orders,Comparator> &book,HelperMapIt order_it,Quantity newQuantity){
+	 auto level_it = book.find(order_it->second.price_);
+	 auto mod_order = std::find(level_it->second.begin(),level_it->second.end(),*(order_it->second.it_));
+	 if(mod_order != level_it->second.end()){
+		 (mod_order)->get()->setQuantity(newQuantity);
+	 }
+} 
+bool OrderBook::modifyOrderQuantity(OrderId id,Quantity newQuantity){
+	 auto order_it = orders_.find(id);
+	 if(order_it != orders_.end()){
+		 if(order_it->second.side_ == Side::BUY){
+				executeModifyOrder(bids_,order_it,newQuantity);
+		 }else{
+				executeModifyOrder(asks_,order_it,newQuantity);
+		 } 
+		 return true;
+	 }
 	 return false;
 }
 
