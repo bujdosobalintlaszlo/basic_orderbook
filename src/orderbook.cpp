@@ -5,6 +5,7 @@
 #include "orderbook/ordertype.h"
 #include "orderbook/trade_info.h"
 #include "orderbook/market.h"
+#include<algorithm>
 //#include "orderbook/market.h"
 
 OrderBook::OrderBook() = default;
@@ -233,10 +234,29 @@ bool OrderBook::canMatch(OrderPtr &order, std::map<Price,Orders,Comparator> &boo
 }
 
 template<typename Comparator>
-bool modifyOrderPrice(OrderId id,Price newPrice){
+void OrderBook::executePriceMod(std::map<Price,Orders,Comparator> &book,Price newPrice,Orders::iterator item_it){
+	 auto[it,inserted] = bids_.try_emplace(newPrice);
+	 it->second.push_back(std::move(*(item_it)));
+}
+bool OrderBook::modifyOrderPrice(OrderId id,Price newPrice){
+	 auto order_it = orders_.find(id);
+	 //wont modify if it doesnt exists or has the same price
+	 if(order_it != orders_.end() && order_it->second.price_ != newPrice){
+		  if(order_it->second.side_ == Side::BUY){
+				/*
+				auto[it,inserted] = bids_.try_emplace(newPrice);
+				it->second.push_back(std::move(*(order_it->second.it_)));
+				*/
+				executePriceMod(bids_,newPrice,order_it->second.it_);
+				return true;
+				
+		  }else{
+				executePriceMod(asks_,newPrice,order_it->second.it_);
+				return true;
+		  }
+	 }
 	 return false;
 }
-template<typename Comparator>
 bool modifyOrderQuantity(OrderId id,Quantity newQuantity){
 	 return false;
 }

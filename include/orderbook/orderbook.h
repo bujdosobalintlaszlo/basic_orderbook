@@ -56,8 +56,9 @@ public:
 	 Trades matchLimitOrder(OrderPtr &order, std::map<Price,Orders, Compare> &book);
 	 template<typename Comparator>
 	 bool canMatch(OrderPtr &order,std::map<Price,Orders,Comparator> &book);
-	 template<typename Comparator>
 	 bool modifyOrderPrice(OrderId id,Price newPrice);
+	 template<typename Comparator>
+	 void executePriceMod(std::map<Price,Orders,Comparator> &book,Price newPrice,Orders::iterator item_it);
 	 template<typename Comparator>
 	 bool modifyOrderQuantity(OrderId id,Quantity newQuantity);
 };

@@ -10,8 +10,9 @@
 #include "orderbook/orderbook.h"
 #include<string>
 #include <fstream>
-
-
+/*rework idea:
+methodId(placeorder,modifyPrice,modifyAmount),
+*/
 std::vector<std::string> DataParser::splitLine(const std::string& line, char delim){
     std::vector<std::string> words;
     std::stringstream s(line);
@@ -22,47 +23,41 @@ std::vector<std::string> DataParser::splitLine(const std::string& line, char del
     return words;
 }
 
-OrderPtr DataParser::createOrder(const std::string& line){
+OrderPtr DataParser::createOrder(const std::vector<std::string>& words){
     try{
-        auto words = splitLine(line, ',');
-		  if(words.size() == 7){
-				OrderId id = words.at(0);
-				OrderType orderType = static_cast<OrderType>(std::stoi(words.at(1)));
-				Side side = static_cast<Side>(std::stoi(words.at(2)));
-				Price price = std::stod(words.at(3));
-				Quantity quantity = std::stoull(words.at(4));
-				Date date = std::stoull(words.at(5));
-				Symbol symbol = words.at(6);
-				return std::make_unique<Order>(id, orderType, side, price, quantity,date,symbol);
-		  }
+		  OrderId id = words.at(1);
+		  OrderType orderType = static_cast<OrderType>(std::stoi(words.at(2)));
+		  Side side = static_cast<Side>(std::stoi(words.at(3)));
+		  Price price = std::stod(words.at(4));
+		  Quantity quantity = std::stoull(words.at(5));
+		  Date date = std::stoull(words.at(6));
+		  Symbol symbol = words.at(7);
+		  return std::make_unique<Order>(id, orderType, side, price, quantity,date,symbol);
     }catch(const std::exception& e){
         std::cerr << "Failed to parse line: " << e.what() << '\n';
         return nullptr;
     }
 	 return nullptr;
 }
-bool DataParser::modifyOrder(const std::string& line){
-	 //here we construct the order but we need to check if it is modifable, so mayb include it in the csv or on action
-	 //depends on the mode
-	 auto words = splitLine(line,',');
-	 OrderId id = words.at(0);
-}
-MarketOrderPtr DataParser::createMarketOrder(const std::string& line){
+
+MarketOrderPtr DataParser::createMarketOrder(const std::vector<std::string>& words){
 	 try{
-        auto words = splitLine(line, ',');
-		  if(words.size() == 4){
-				OrderId id = words.at(0);
-				OrderType orderType = static_cast<OrderType>(std::stoi(words.at(1)));
-				Side side = static_cast<Side>(std::stoi(words.at(2)));
-				Quantity quantity = std::stoull(words.at(3));
-				Date date = std::stoull(words.at(4))
-				return std::make_unique<Market>(id, orderType, side, quantity,date);
-		  }
+		  OrderId id = words.at(1);
+		  OrderType orderType = static_cast<OrderType>(std::stoi(words.at(2)));
+		  Side side = static_cast<Side>(std::stoi(words.at(3)));
+		  Quantity quantity = std::stoull(words.at(4));
+		  Date date = std::stoull(words.at(5));
+		  Symbol symbol = words.at(6);
+		  return std::make_unique<Market>(id, orderType, side, quantity,date,symbol);
     }catch(const std::exception& e){
         std::cerr << "Failed to parse line: " << e.what() << '\n';
         return nullptr;
     }
 	 return nullptr;
+}
+
+bool DataParser::modifyOrderPrice(const std::vector<std::string> &line){
+	 OrderId id = line.at(0);
 }
 void DataParser::handleStream(OrderBook& book, std::string& path){
 	 std::ifstream f(path);
@@ -74,26 +69,30 @@ void DataParser::handleStream(OrderBook& book, std::string& path){
 	 //mod line: modId,orderId,amount,date
 	 while(std::getline(f,line)){
 		  std::vector<std::string> data = splitLine(line,',');
-		  if(data.size() == 4){
-				ModId modId = stoi(data.at(0));
-				switch(modId){
+		  try{	
+				//0-place,1-mod price, 2-mod quant
+				ModId mod_id = stoi(data.at(0));
+				switch(mod_id){
 					 case 0:
-						  OrderId oid = data.at(1);
-						  Quantity newQuant = std::stoull(data.at(2));
-						  Date date = std::stoull(data.at(3));
-						  book.modifyOrderQuantity(oid,newQuant,date);
+						  OrderType orderType = static_cast<OrderType>(std::stoi(data.at(1)));
+						  if(orderType == OrderType::Market){
+								book.placeOrder(createMarketOrder(data));
+						  }else{
+								book.placeOrder(createOrder(data));
+						  }
 						  break;
 					 case 1:
-						  OrderId oid = data.at(1);
-						  Price newPrice = std::stoull(data.at(2));
-						  Date date = std::stoull(data.at(3));
-						  book.modifyOrderQuantity(oid,newQuant,date);
+						  book.modifyOrderPrice();
+						  break;
+					 case 2:
+						  book.modifyOrderPrice();
 						  break;
 
+
 				}
-		  }else if(data.size() == 8){
-				
-		  }
+		  }catch(...){
+				throw;
+		  } 
 	 }
 	 
 }
